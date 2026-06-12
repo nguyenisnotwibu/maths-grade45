@@ -340,7 +340,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
 <!-- ============ RESULTS & LEADERBOARD ============ -->
 <section class="topic" id="topic-board">
   <div class="topic-head"><h2>🏆 Kết quả &amp; Bảng xếp hạng</h2><div class="sub">Results &amp; Leaderboard</div></div>
-  <div id="resultArea"><div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả, lời giải chi tiết và lưu vào bảng xếp hạng nhé!</div></div>
+  <div id="resultArea"><div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả, lời giải chi tiết và lưu vào bảng xếp hạng nhé!<br>🎲 <b>Mỗi lần tải lại trang là một ĐỀ MỚI</b> — số liệu và đáp án thay đổi ngẫu nhiên!</div></div>
   <h3 style="color:var(--navy);margin:18px 0 10px">🥇 Bảng xếp hạng (trên thiết bị này)</h3>
   <div id="boardWrap"></div>
   <div id="reviewSection" style="display:none">
@@ -356,7 +356,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
 </section>
 
 </main>
-<footer>Geometry Quest • Everyday Mathematics Grades 4–5 • Made with 💙 for Mr Nguyen Vu's students</footer>
+<footer>Geometry Quest • Everyday Mathematics Grades 4–5 • 🎲 Tải lại trang để nhận đề mới! • Made with 💙 for Mr Nguyen Vu's students</footer>
 <script>
 /* ================= FIGURES (SVG) ================= */
 const FIG = {
@@ -378,9 +378,8 @@ grid34:'<svg width="190" height="180" viewBox="0 0 190 180"><g stroke="#cfe3f7" 
 gridRect:'<svg width="190" height="180" viewBox="0 0 190 180"><g stroke="#cfe3f7" stroke-width="1.5"><line x1="30" y1="150" x2="30" y2="40"/><line x1="52" y1="150" x2="52" y2="40"/><line x1="74" y1="150" x2="74" y2="40"/><line x1="96" y1="150" x2="96" y2="40"/><line x1="118" y1="150" x2="118" y2="40"/><line x1="140" y1="150" x2="140" y2="40"/><line x1="30" y1="40" x2="140" y2="40"/><line x1="30" y1="62" x2="140" y2="62"/><line x1="30" y1="84" x2="140" y2="84"/><line x1="30" y1="106" x2="140" y2="106"/><line x1="30" y1="128" x2="140" y2="128"/></g><line x1="30" y1="150" x2="148" y2="150" stroke="#2b3a55" stroke-width="2.5"/><line x1="30" y1="150" x2="30" y2="32" stroke="#2b3a55" stroke-width="2.5"/><polygon points="52,128 140,128 140,62 52,62" fill="rgba(46,184,114,.12)" stroke="#2eb872" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="52" cy="128" r="5.5" fill="#2f7fd1"/><circle cx="140" cy="128" r="5.5" fill="#2f7fd1"/><circle cx="140" cy="62" r="5.5" fill="#2f7fd1"/><circle cx="52" cy="62" r="7" fill="none" stroke="#ef5d60" stroke-width="2.5" stroke-dasharray="4 3"/><text x="40" y="143" font-size="11" font-weight="800" fill="#2f7fd1">(1,1)</text><text x="118" y="143" font-size="11" font-weight="800" fill="#2f7fd1">(5,1)</text><text x="118" y="54" font-size="11" font-weight="800" fill="#2f7fd1">(5,4)</text><text x="42" y="54" font-size="14" font-weight="800" fill="#ef5d60">?</text><text x="26" y="165" font-size="11" font-weight="700" fill="#6b7a99">0</text><text x="152" y="154" font-size="13" font-weight="800" fill="#2b3a55">x</text><text x="24" y="30" font-size="13" font-weight="800" fill="#2b3a55">y</text></svg>'
 };
 
-/* ================= QUESTIONS ================= */
-/* d: 1 = Nhận biết/Identify, 2 = Tính toán/Calculate, 3 = Toán đố/Word problems */
-const QS = [
+/* ================= QUESTIONS (bộ mẫu cũ - không dùng, giữ tham khảo) ================= */
+const QS0 = [
 /* ---- LINES & ANGLES ---- */
 {t:'angles',d:1,g:'G4',svg:FIG.ray,
  q:'Look at the figure. What is it called?', vn:'Hình bên gọi là gì?',
@@ -610,6 +609,187 @@ const QS = [
  how:'Trình bày: "Same y-coordinate → horizontal distance = 7 − 2 = 5 units." Cùng hàng ngang thì trừ x; cùng cột dọc thì trừ y.'}
 ];
 
+/* ============ NEW: RANDOM EXAM — mỗi lần tải trang = 1 đề mới ============ */
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+function shuf(opts,a){const idx=opts.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}return{opts:idx.map(i=>opts[i]),a:idx.indexOf(a)};}
+function numOpts(c,cands,unit){unit=unit||'';const used={};used[c]=1;const ds=[];for(let i=0;i<cands.length&&ds.length<3;i++){const v=Math.round(cands[i]);if(v>0&&!used[v]){used[v]=1;ds.push(v);}}let k=1;while(ds.length<3){const v=c+k;if(v>0&&!used[v]){used[v]=1;ds.push(v);}k=k>0?-k:(-k+1);}return shuf([c+unit,ds[0]+unit,ds[1]+unit,ds[2]+unit],0);}
+function Q(t,d,g,svg,q,vn,vocab,why,how,sh){return{t:t,d:d,g:g,svg:svg,q:q,vn:vn,vocab:vocab,why:why,how:how,opts:sh.opts,a:sh.a};}
+
+/* --- thêm hình tĩnh --- */
+FIG.segment='<svg width="150" height="46" viewBox="0 0 150 46"><line x1="20" y1="23" x2="130" y2="23" stroke="#2f7fd1" stroke-width="3.5"/><circle cx="20" cy="23" r="5" fill="#2f7fd1"/><circle cx="130" cy="23" r="5" fill="#2f7fd1"/></svg>';
+FIG.lineF='<svg width="150" height="46" viewBox="0 0 150 46"><line x1="20" y1="23" x2="130" y2="23" stroke="#7b5ce0" stroke-width="3.5"/><polygon points="22,15 6,23 22,31" fill="#7b5ce0"/><polygon points="128,15 144,23 128,31" fill="#7b5ce0"/></svg>';
+FIG.perp='<svg width="120" height="100" viewBox="0 0 120 100"><line x1="14" y1="78" x2="106" y2="78" stroke="#ff8c42" stroke-width="3.5"/><line x1="60" y1="10" x2="60" y2="96" stroke="#ff8c42" stroke-width="3.5"/><rect x="60" y="64" width="14" height="14" fill="none" stroke="#ff8c42" stroke-width="2"/></svg>';
+FIG.isoTick='<svg width="110" height="92" viewBox="0 0 110 92"><polygon points="55,8 22,82 88,82" fill="#e6fbf0" stroke="#2eb872" stroke-width="3.5"/><line x1="33" y1="44" x2="43" y2="50" stroke="#2eb872" stroke-width="3"/><line x1="67" y1="50" x2="77" y2="44" stroke="#2eb872" stroke-width="3"/></svg>';
+FIG.scaleneF='<svg width="120" height="86" viewBox="0 0 120 86"><polygon points="14,76 112,76 84,14" fill="#f4eefe" stroke="#7b5ce0" stroke-width="3.5"/></svg>';
+FIG.obtuseF='<svg width="135" height="80" viewBox="0 0 135 80"><polygon points="42,70 126,70 8,16" fill="#ffeef0" stroke="#ef5d60" stroke-width="3.5"/></svg>';
+FIG.acuteF='<svg width="110" height="86" viewBox="0 0 110 86"><polygon points="50,10 12,76 98,76" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3.5"/></svg>';
+FIG.rectF='<svg width="120" height="70" viewBox="0 0 120 70"><rect x="10" y="14" width="100" height="44" fill="#e6fbf0" stroke="#2eb872" stroke-width="3.5"/></svg>';
+FIG.paraF='<svg width="120" height="70" viewBox="0 0 120 70"><polygon points="28,12 114,12 92,60 6,60" fill="#fff0e2" stroke="#ff8c42" stroke-width="3.5"/></svg>';
+FIG.trapF='<svg width="120" height="70" viewBox="0 0 120 70"><polygon points="34,12 84,12 110,60 8,60" fill="#ffeef0" stroke="#ef5d60" stroke-width="3.5"/></svg>';
+
+/* --- hình vẽ theo tham số --- */
+function figAngle(deg){const r=deg*Math.PI/180,vx=75,vy=84,L=64;const x=(vx+L*Math.cos(r)).toFixed(1),y=(vy-L*Math.sin(r)).toFixed(1);let mark='';
+ if(deg===90)mark='<rect x="75" y="64" width="14" height="14" fill="none" stroke="#2eb872" stroke-width="2"/>';
+ else if(deg<178){const ar=20,ax=(vx+ar*Math.cos(r)).toFixed(1),ay=(vy-ar*Math.sin(r)).toFixed(1);mark='<path d="M '+(vx+ar)+' '+vy+' A '+ar+' '+ar+' 0 0 0 '+ax+' '+ay+'" fill="none" stroke="#2eb872" stroke-width="2"/>';}
+ return '<svg width="170" height="100" viewBox="0 0 170 100"><line x1="'+vx+'" y1="'+vy+'" x2="160" y2="'+vy+'" stroke="#2eb872" stroke-width="3.5"/><line x1="'+vx+'" y1="'+vy+'" x2="'+x+'" y2="'+y+'" stroke="#2eb872" stroke-width="3.5"/><circle cx="'+vx+'" cy="'+vy+'" r="4" fill="#2eb872"/>'+mark+'</svg>';}
+function figSplit(m,total){const vx=total>95?62:16,vy=82;const P=(ang,R)=>{const r=ang*Math.PI/180;return[(vx+R*Math.cos(r)).toFixed(1),Math.max(11,vy-R*Math.sin(r)).toFixed(1)];};
+ const C=P(total,70),D=P(m,70),lm=P(m/2,42),ln=P((m+total)/2,46),lc=P(total,82),ld=P(m,82);
+ return '<svg width="178" height="104" viewBox="0 0 178 104"><line x1="'+vx+'" y1="'+vy+'" x2="'+(vx+96)+'" y2="'+vy+'" stroke="#ff8c42" stroke-width="3"/><line x1="'+vx+'" y1="'+vy+'" x2="'+C[0]+'" y2="'+C[1]+'" stroke="#ff8c42" stroke-width="3"/><line x1="'+vx+'" y1="'+vy+'" x2="'+D[0]+'" y2="'+D[1]+'" stroke="#7b5ce0" stroke-width="3" stroke-dasharray="6 4"/><circle cx="'+vx+'" cy="'+vy+'" r="4" fill="#2b3a55"/><text x="'+(vx+86)+'" y="'+(vy+16)+'" font-size="12" font-weight="800" fill="#2b3a55">A</text><text x="'+(vx-12)+'" y="'+(vy+16)+'" font-size="12" font-weight="800" fill="#2b3a55">B</text><text x="'+lc[0]+'" y="'+lc[1]+'" font-size="12" font-weight="800" fill="#2b3a55">C</text><text x="'+ld[0]+'" y="'+ld[1]+'" font-size="12" font-weight="800" fill="#7b5ce0">D</text><text x="'+lm[0]+'" y="'+lm[1]+'" font-size="12" font-weight="800" fill="#a36a00">'+m+'°</text><text x="'+ln[0]+'" y="'+ln[1]+'" font-size="12" font-weight="800" fill="#5b3fa8">'+(total-m)+'°</text></svg>';}
+function figClock(h){const a=h*30*Math.PI/180;const hx=(55+30*Math.sin(a)).toFixed(1),hy=(55-30*Math.cos(a)).toFixed(1);
+ return '<svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="46" fill="#fff" stroke="#2f7fd1" stroke-width="4"/><text x="55" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#2b3a55">12</text><text x="94" y="60" text-anchor="middle" font-size="13" font-weight="800" fill="#2b3a55">3</text><text x="55" y="100" text-anchor="middle" font-size="13" font-weight="800" fill="#2b3a55">6</text><text x="16" y="60" text-anchor="middle" font-size="13" font-weight="800" fill="#2b3a55">9</text><line x1="55" y1="55" x2="55" y2="26" stroke="#ef5d60" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="55" x2="'+hx+'" y2="'+hy+'" stroke="#2b3a55" stroke-width="5" stroke-linecap="round"/></svg>';}
+function figTri3(a,b){if(a===90)return '<svg width="120" height="96" viewBox="0 0 120 96"><polygon points="16,14 16,82 104,82" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/><rect x="16" y="68" width="14" height="14" fill="none" stroke="#2f7fd1" stroke-width="2.5"/><text x="64" y="76" font-size="13" font-weight="800" fill="#2b3a55">'+b+'°</text><text x="20" y="34" font-size="15" font-weight="800" fill="#ef5d60">?</text></svg>';
+ return '<svg width="120" height="92" viewBox="0 0 120 92"><polygon points="58,10 12,78 108,78" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/><text x="22" y="72" font-size="13" font-weight="800" fill="#2b3a55">'+a+'°</text><text x="74" y="72" font-size="13" font-weight="800" fill="#2b3a55">'+b+'°</text><text x="52" y="34" font-size="15" font-weight="800" fill="#ef5d60">?</text></svg>';}
+function figIso(base){return '<svg width="120" height="92" viewBox="0 0 120 92"><polygon points="60,10 18,80 102,80" fill="#e6fbf0" stroke="#2eb872" stroke-width="3"/><text x="28" y="74" font-size="13" font-weight="800" fill="#2b3a55">'+base+'°</text><text x="70" y="74" font-size="13" font-weight="800" fill="#2b3a55">'+base+'°</text><text x="54" y="36" font-size="15" font-weight="800" fill="#ef5d60">?</text></svg>';}
+function figRect(l,w,f,s){const hpx=Math.max(36,Math.min(80,Math.round(128*w/l)));return '<svg width="178" height="'+(hpx+44)+'" viewBox="0 0 178 '+(hpx+44)+'"><rect x="25" y="14" width="128" height="'+hpx+'" fill="'+f+'" stroke="'+s+'" stroke-width="3.5"/><text x="89" y="'+(hpx+36)+'" text-anchor="middle" font-size="14" font-weight="800" fill="#2b3a55">'+l+' cm</text><text x="12" y="'+Math.round(19+hpx/2)+'" text-anchor="middle" font-size="14" font-weight="800" fill="#2b3a55">'+w+'</text></svg>';}
+function figL(W,H1,W2,H2){const s=Math.min(120/W,88/(H1+H2));const X=x=>+(15+x*s).toFixed(1),Y=y=>+(14+y*s).toFixed(1);
+ const pts=X(0)+','+Y(0)+' '+X(W2)+','+Y(0)+' '+X(W2)+','+Y(H2)+' '+X(W)+','+Y(H2)+' '+X(W)+','+Y(H1+H2)+' '+X(0)+','+Y(H1+H2);
+ const hh=Y(H1+H2);
+ return '<svg width="190" height="'+(hh+26)+'" viewBox="0 0 190 '+(hh+26)+'"><polygon points="'+pts+'" fill="#fff0e2" stroke="#ff8c42" stroke-width="3.5"/><line x1="'+X(0)+'" y1="'+Y(H2)+'" x2="'+X(W2)+'" y2="'+Y(H2)+'" stroke="#ff8c42" stroke-width="2" stroke-dasharray="6 4"/><text x="'+X(W2/2)+'" y="10" text-anchor="middle" font-size="12.5" font-weight="800" fill="#2b3a55">'+W2+' m</text><text x="'+(X(W2)+5)+'" y="'+(Y(H2/2)+4)+'" font-size="12.5" font-weight="800" fill="#2b3a55">'+H2+' m</text><text x="'+X(W/2)+'" y="'+(hh+20)+'" text-anchor="middle" font-size="12.5" font-weight="800" fill="#2b3a55">'+W+' m</text><text x="'+(X(W)+5)+'" y="'+(Y(H2+H1/2)+4)+'" font-size="12.5" font-weight="800" fill="#2b3a55">'+H1+' m</text></svg>';}
+function figPrism(l,w,h){const u=22,dx=11,dy=9,x0=14,y0=14+w*dy,fw=l*u,fh=h*u;let g='';
+ for(let i=1;i<l;i++){g+='<line x1="'+(x0+i*u)+'" y1="'+y0+'" x2="'+(x0+i*u)+'" y2="'+(y0+fh)+'"/>'+'<line x1="'+(x0+i*u)+'" y1="'+y0+'" x2="'+(x0+i*u+w*dx)+'" y2="'+(y0-w*dy)+'"/>';}
+ for(let j=1;j<h;j++){g+='<line x1="'+x0+'" y1="'+(y0+j*u)+'" x2="'+(x0+fw)+'" y2="'+(y0+j*u)+'"/>'+'<line x1="'+(x0+fw)+'" y1="'+(y0+j*u)+'" x2="'+(x0+fw+w*dx)+'" y2="'+(y0+j*u-w*dy)+'"/>';}
+ for(let k=1;k<w;k++){g+='<line x1="'+(x0+k*dx)+'" y1="'+(y0-k*dy)+'" x2="'+(x0+fw+k*dx)+'" y2="'+(y0-k*dy)+'"/>'+'<line x1="'+(x0+fw+k*dx)+'" y1="'+(y0-k*dy)+'" x2="'+(x0+fw+k*dx)+'" y2="'+(y0-k*dy+fh)+'"/>';}
+ const W=x0+fw+w*dx+44,H=y0+fh+26;
+ return '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><polygon points="'+x0+','+y0+' '+(x0+fw)+','+y0+' '+(x0+fw+w*dx)+','+(y0-w*dy)+' '+(x0+w*dx)+','+(y0-w*dy)+'" fill="#cfe9fc" stroke="#2f7fd1" stroke-width="2.5"/><polygon points="'+(x0+fw)+','+y0+' '+(x0+fw+w*dx)+','+(y0-w*dy)+' '+(x0+fw+w*dx)+','+(y0-w*dy+fh)+' '+(x0+fw)+','+(y0+fh)+'" fill="#a8d4f5" stroke="#2f7fd1" stroke-width="2.5"/><rect x="'+x0+'" y="'+y0+'" width="'+fw+'" height="'+fh+'" fill="#dff0fd" stroke="#2f7fd1" stroke-width="2.5"/><g stroke="#2f7fd1" stroke-width="1.3">'+g+'</g><text x="'+(x0+fw/2)+'" y="'+(y0+fh+19)+'" text-anchor="middle" font-size="12" font-weight="800" fill="#2b3a55">l = '+l+'</text><text x="'+(x0+fw+w*dx+3)+'" y="'+Math.round(y0+fh/2)+'" font-size="12" font-weight="800" fill="#2b3a55">h='+h+'</text><text x="'+(x0+fw+Math.round(w*dx/2))+'" y="'+(y0-w*dy-5)+'" font-size="12" font-weight="800" fill="#2b3a55">w='+w+'</text></svg>';}
+const gpx=x=>30+22*x, gpy=y=>150-22*y;
+function gridBase(){let g='<g stroke="#cfe3f7" stroke-width="1.5">';for(let i=0;i<=5;i++){g+='<line x1="'+gpx(i)+'" y1="150" x2="'+gpx(i)+'" y2="40"/><line x1="30" y1="'+gpy(i)+'" x2="140" y2="'+gpy(i)+'"/>';}g+='</g><line x1="30" y1="150" x2="148" y2="150" stroke="#2b3a55" stroke-width="2.5"/><line x1="30" y1="150" x2="30" y2="32" stroke="#2b3a55" stroke-width="2.5"/>';
+ for(let i=0;i<=5;i++){g+='<text x="'+(gpx(i)-3)+'" y="165" font-size="11" font-weight="700" fill="#6b7a99">'+i+'</text>';if(i>0)g+='<text x="16" y="'+(gpy(i)+4)+'" font-size="11" font-weight="700" fill="#6b7a99">'+i+'</text>';}
+ return g+'<text x="152" y="154" font-size="13" font-weight="800" fill="#2b3a55">x</text><text x="24" y="30" font-size="13" font-weight="800" fill="#2b3a55">y</text>';}
+function figGridP(x,y){return '<svg width="190" height="180" viewBox="0 0 190 180">'+gridBase()+'<circle cx="'+gpx(x)+'" cy="'+gpy(y)+'" r="6.5" fill="#ef5d60"/><text x="'+(gpx(x)+8)+'" y="'+(gpy(y)-7)+'" font-size="13" font-weight="800" fill="#ef5d60">P</text></svg>';}
+function figGridR(x1,y1,x2,y2){return '<svg width="190" height="180" viewBox="0 0 190 180">'+gridBase()
+ +'<polygon points="'+gpx(x1)+','+gpy(y1)+' '+gpx(x2)+','+gpy(y1)+' '+gpx(x2)+','+gpy(y2)+' '+gpx(x1)+','+gpy(y2)+'" fill="rgba(46,184,114,.12)" stroke="#2eb872" stroke-width="1.5" stroke-dasharray="5 4"/>'
+ +'<circle cx="'+gpx(x1)+'" cy="'+gpy(y1)+'" r="5.5" fill="#2f7fd1"/><circle cx="'+gpx(x2)+'" cy="'+gpy(y1)+'" r="5.5" fill="#2f7fd1"/><circle cx="'+gpx(x2)+'" cy="'+gpy(y2)+'" r="5.5" fill="#2f7fd1"/><circle cx="'+gpx(x1)+'" cy="'+gpy(y2)+'" r="7" fill="none" stroke="#ef5d60" stroke-width="2.5" stroke-dasharray="4 3"/>'
+ +'<text x="'+(gpx(x1)-12)+'" y="'+(gpy(y1)+17)+'" font-size="11" font-weight="800" fill="#2f7fd1">('+x1+','+y1+')</text><text x="'+(gpx(x2)-12)+'" y="'+(gpy(y1)+17)+'" font-size="11" font-weight="800" fill="#2f7fd1">('+x2+','+y1+')</text><text x="'+(gpx(x2)-12)+'" y="'+(gpy(y2)-9)+'" font-size="11" font-weight="800" fill="#2f7fd1">('+x2+','+y2+')</text><text x="'+(gpx(x1)-4)+'" y="'+(gpy(y2)-9)+'" font-size="14" font-weight="800" fill="#ef5d60">?</text></svg>';}
+
+/* --- 36 generators --- */
+const ANGLE_OPTS=['Right angle / Góc vuông','Acute angle / Góc nhọn','Obtuse angle / Góc tù','Straight angle / Góc bẹt'];
+function angleName(d){return d===90?ANGLE_OPTS[0]:d<90?ANGLE_OPTS[1]:d<180?ANGLE_OPTS[2]:ANGLE_OPTS[3];}
+function angleWhy(d){return d===90?'It is exactly 90° → a right angle. (Đúng 90° → góc vuông.)':d<90?d+'° < 90° → acute angle. (Nhỏ hơn 90° → góc nhọn.)':d<180?'90° < '+d+'° < 180° → obtuse angle. (Lớn hơn 90° và nhỏ hơn 180° → góc tù.)':'Exactly 180° — the two rays form a straight line → straight angle. (Đúng 180° → góc bẹt.)';}
+const GENS=[
+/* ANGLES */
+function(){const v=pick([['Ray / Tia',FIG.ray,'It has ONE endpoint and one arrow: it starts at a point and goes on forever in ONE direction. (Có 1 điểm gốc và 1 mũi tên → tia.)','Viết: "The figure has 1 endpoint and 1 arrow, so it is a ray."'],['Line segment / Đoạn thẳng',FIG.segment,'It has TWO endpoints — it stops at both ends. (Có 2 điểm đầu mút → đoạn thẳng.)','Viết: "The figure has 2 endpoints, so it is a line segment."'],['Line / Đường thẳng',FIG.lineF,'It has arrows on BOTH ends — it goes on forever in both directions. (Hai đầu đều có mũi tên → đường thẳng.)','Viết: "The figure has arrows on both ends, so it is a line."']]);
+ const opts=['Line / Đường thẳng','Line segment / Đoạn thẳng','Ray / Tia','Angle / Góc'];
+ return Q('angles',1,'G4',v[1],'Look at the figure. What is it called?','Hình bên gọi là gì?','ray = tia • line segment = đoạn thẳng • line = đường thẳng • endpoint = điểm đầu mút • arrow = mũi tên',v[2],v[3],shuf(opts,opts.indexOf(v[0])));},
+function(){const type=pick(['acute','right','obtuse']);const d=type==='acute'?5*ri(4,16):type==='right'?90:5*ri(21,33);
+ return Q('angles',1,'G4',figAngle(d),'This angle measures '+d+'°. What kind of angle is it?','Góc này có số đo '+d+'°. Đây là góc gì?','acute = nhọn (<90°) • right = vuông (=90°) • obtuse = tù (90°–180°) • straight = bẹt (=180°)',angleWhy(d),'Viết: so sánh số đo với 90° và 180° rồi kết luận. Ví dụ: "'+d+'° '+(d<90?'< 90° → acute':d===90?'= 90° → right':'> 90° → obtuse')+' angle."',shuf(ANGLE_OPTS.slice(),ANGLE_OPTS.indexOf(angleName(d))));},
+function(){const v=pick([['Parallel lines / Song song',FIG.parallel,'They stay the same distance apart and NEVER meet. (Luôn cách đều nhau, không bao giờ cắt → song song.)','Viết: "The lines never intersect, so they are parallel." Ký hiệu: AB ∥ CD.'],['Perpendicular lines / Vuông góc',FIG.perp,'They cross and make right angles (see the square mark). (Cắt nhau tạo góc vuông 90° → vuông góc.)','Viết: "The lines intersect at 90°, so they are perpendicular." Ký hiệu: AB ⊥ CD.']]);
+ const opts=['Parallel lines / Song song','Perpendicular lines / Vuông góc','Rays / Hai tia','Intersecting, not perpendicular / Cắt nhau thường'];
+ return Q('angles',1,'G4',v[1],'What do we call this pair of lines?','Cặp đường thẳng này gọi là gì?','parallel = song song • perpendicular = vuông góc • intersect = cắt nhau • right angle = góc vuông',v[2],v[3],shuf(opts,opts.indexOf(v[0])));},
+function(){const type=pick(['acute','right','obtuse','straight']);const d=type==='acute'?5*ri(2,17):type==='right'?90:type==='obtuse'?5*ri(19,35):180;
+ return Q('angles',2,'G4',null,'An angle measures '+d+'°. What kind of angle is it?','Một góc có số đo '+d+'°. Đó là góc gì?','measure = số đo • greater than = lớn hơn • less than = nhỏ hơn • between = nằm giữa',angleWhy(d),'Viết: "'+(d<90?d+'° < 90°, so it is an acute angle.':d===90?d+'° = 90°, so it is a right angle.':d<180?'90° < '+d+'° < 180°, so it is an obtuse angle.':d+'° = 180°, so it is a straight angle.')+'"',shuf(ANGLE_OPTS.slice(),ANGLE_OPTS.indexOf(angleName(d))));},
+function(){const total=pick([80,90,100,110,120]);const m=5*ri(4,total/5-4);const n=total-m;
+ return Q('angles',2,'G4',figSplit(m,total),'Ray BD splits angle ABC. If ∠ABD = '+m+'° and ∠DBC = '+n+'°, what is the whole angle ABC?','Tia BD chia góc ABC. Biết ∠ABD = '+m+'° và ∠DBC = '+n+'°, góc ABC bằng bao nhiêu?','whole angle = góc lớn • part = phần • add = cộng • additive = có tính cộng',
+ 'The whole angle = sum of its parts: '+m+'° + '+n+'° = '+total+'°. (Góc lớn = tổng các góc nhỏ.)','Trình bày: ∠ABC = ∠ABD + ∠DBC = '+m+'° + '+n+'° = '+total+'°. Answer: '+total+'°.',numOpts(total,[total-10,total+10,Math.abs(m-n)>5?Math.abs(m-n):total+20],'°'));},
+function(){const h=pick([1,2,3,4,5,6]);const a=h*30;
+ return Q('angles',3,'G4',figClock(h),'At '+h+":00, the two hands of the clock make what kind of angle?",'Lúc '+h+' giờ đúng, hai kim đồng hồ tạo thành góc gì?','clock hands = kim đồng hồ • hour mark = vạch giờ • turn = vòng quay',
+ 'Each hour mark = 30°. At '+h+':00 the hands make '+h+' × 30° = '+a+'°. '+angleWhy(a),'Trình bày: Angle = '+h+' × 30° = '+a+'°, rồi so sánh với 90°/180° để gọi tên góc.',shuf(ANGLE_OPTS.slice(),ANGLE_OPTS.indexOf(angleName(a))));},
+/* TRIANGLES */
+function(){const v=pick([[FIG.equi,'Equilateral / Đều','All 3 sides have the same tick marks → 3 equal sides. Each angle is 60°. (3 cạnh bằng nhau → tam giác đều.)'],[FIG.isoTick,'Isosceles / Cân','Exactly 2 sides have tick marks → 2 equal sides. (Đúng 2 cạnh bằng nhau → tam giác cân.)'],[FIG.scaleneF,'Scalene / Thường','No tick marks — no sides are equal. (Không có cạnh nào bằng nhau → tam giác thường.)']]);
+ const opts=['Equilateral / Đều','Isosceles / Cân','Scalene / Thường','Right / Vuông'];
+ return Q('tri',1,'G4',v[0],'Look at the tick marks on the sides. What kind of triangle is this?','Nhìn dấu gạch trên các cạnh. Đây là tam giác gì?','tick marks = dấu gạch (cạnh bằng nhau) • equilateral = đều • isosceles = cân • scalene = thường',v[2],'Viết: đếm số cạnh bằng nhau (3 → equilateral, 2 → isosceles, 0 → scalene) rồi kết luận.',shuf(opts,opts.indexOf(v[1])));},
+function(){const v=pick([[FIG.rightTri,'Right triangle / Tam giác vuông','It has one 90° angle — see the small square mark. (Có 1 góc vuông → tam giác vuông.)'],[FIG.obtuseF,'Obtuse triangle / Tam giác tù','One angle is wider than 90°. (Có 1 góc tù → tam giác tù.)'],[FIG.acuteF,'Acute triangle / Tam giác nhọn','All three angles are smaller than 90°. (Cả 3 góc đều nhọn → tam giác nhọn.)']]);
+ const opts=['Acute triangle / Tam giác nhọn','Right triangle / Tam giác vuông','Obtuse triangle / Tam giác tù','Equilateral / Đều'];
+ return Q('tri',1,'G4',v[0],'Classify this triangle by its ANGLES.','Phân loại tam giác này theo GÓC.','classify = phân loại • acute triangle = tam giác nhọn • right triangle = tam giác vuông • obtuse triangle = tam giác tù',v[2],'Viết: tìm góc lớn nhất — nếu = 90° → right, > 90° → obtuse, cả 3 góc < 90° → acute.',shuf(opts,opts.indexOf(v[1])));},
+function(){const a=pick([90,80,75,70,100,110]);const b=5*ri(5,Math.floor((170-a)/5));const c=180-a-b;
+ return Q('tri',2,'G4',figTri3(a,b),'Two angles of a triangle measure '+a+'° and '+b+'°. What is the third angle?','Hai góc của tam giác là '+a+'° và '+b+'°. Góc thứ ba bằng bao nhiêu?','sum = tổng • third angle = góc thứ ba • subtract = trừ',
+ 'Angles in a triangle always add to 180°. 180° − ('+a+'° + '+b+'°) = 180° − '+(a+b)+'° = '+c+'°. (Tổng 3 góc = 180°.)','Trình bày: Third angle = 180° − '+a+'° − '+b+'° = '+c+'°. Answer: '+c+'°.',numOpts(c,[c+10,c-10,c+5],'°'));},
+function(){const base=5*ri(8,15);const top=180-2*base;
+ return Q('tri',2,'G5',figIso(base),'An isosceles triangle has two base angles of '+base+'° each. What is the top angle?','Tam giác cân có hai góc đáy đều bằng '+base+'°. Góc ở đỉnh bằng bao nhiêu?','isosceles = cân • base angles = góc đáy • vertex/top angle = góc ở đỉnh',
+ 'The two base angles are equal: 180° − ('+base+'° + '+base+'°) = 180° − '+(2*base)+'° = '+top+'°. (Hai góc đáy bằng nhau.)','Trình bày: Top angle = 180° − ('+base+'° + '+base+'°) = '+top+'°. Answer: '+top+'°.',numOpts(top,[top+10,top-10,base],'°'));},
+function(){const v=pick([['Every equilateral triangle is also an isosceles triangle.','Mọi tam giác đều cũng là tam giác cân.',0,'Isosceles needs AT LEAST 2 equal sides. An equilateral triangle has 3 equal sides, so it certainly has 2. (Đều có 3 cạnh bằng → chắc chắn có 2 cạnh bằng → cũng là cân.)'],['A triangle can have two right angles.','Một tam giác có thể có hai góc vuông.',1,'90° + 90° = 180° uses up all the degrees — nothing is left for the third angle! (Hết 180° → không thể có góc thứ ba.)'],['The three angles of every triangle add up to 180°.','Tổng ba góc của mọi tam giác luôn là 180°.',0,'True for ALL triangles — big, small, any shape. (Luôn đúng với mọi tam giác.)'],['An obtuse triangle has three obtuse angles.','Tam giác tù có ba góc tù.',1,'Only ONE angle can be obtuse — two angles over 90° would already pass 180°. (Chỉ có thể có đúng 1 góc tù.)']]);
+ return Q('tri',2,'G5',null,'True or false: '+v[0],'Đúng hay sai: '+v[1],'true/false = đúng/sai • at least = ít nhất • property = tính chất',v[3],'Viết: nêu định nghĩa liên quan rồi kết luận True/False kèm lý do một câu.',shuf(['True / Đúng','False / Sai'],v[2]));},
+function(){const v=pick([[7,7,4,'Isosceles / Cân'],[6,6,9,'Isosceles / Cân'],[8,8,5,'Isosceles / Cân'],[9,9,9,'Equilateral / Đều'],[5,7,9,'Scalene / Thường'],[4,6,8,'Scalene / Thường']]);
+ const P=v[0]+v[1]+v[2];const kind=v[3];
+ const why=kind.indexOf('Equi')===0?'All three sides are equal ('+v[0]+' = '+v[1]+' = '+v[2]+') → equilateral. (3 cạnh bằng nhau → đều.)':kind.indexOf('Iso')===0?'Two sides are equal ('+v[0]+' cm = '+v[1]+' cm) but not all three → isosceles. (Đúng 2 cạnh bằng nhau → cân.)':'No two sides are equal ('+v[0]+', '+v[1]+', '+v[2]+') → scalene. (Không có cạnh nào bằng nhau → thường.)';
+ const opts=['Equilateral / Đều','Isosceles / Cân','Scalene / Thường','Right / Vuông'];
+ return Q('tri',3,'G4',null,'A garden sign is a triangle with sides '+v[0]+' cm, '+v[1]+' cm and '+v[2]+' cm. What kind of triangle is it?','Biển báo hình tam giác có các cạnh '+v[0]+' cm, '+v[1]+' cm và '+v[2]+' cm. Đây là tam giác gì?','sides = các cạnh • equal = bằng nhau • perimeter = chu vi',why+' Bonus: P = '+v[0]+' + '+v[1]+' + '+v[2]+' = '+P+' cm.','Viết: so sánh 3 cạnh, đếm số cạnh bằng nhau rồi kết luận. Có thể tính thêm chu vi P = '+P+' cm.',shuf(opts,opts.indexOf(kind)));},
+/* QUADRILATERALS */
+function(){const v=pick([[FIG.rhomTick,'Rhombus / Hình thoi','This parallelogram has 4 equal sides but NO right angles.','Hình bình hành này có 4 cạnh bằng nhau nhưng KHÔNG có góc vuông.','4 equal sides → rhombus. No right angles → not a square. (4 cạnh bằng, không góc vuông → hình thoi.)'],[FIG.trapF,'Trapezoid / Hình thang','This quadrilateral has exactly ONE pair of parallel sides.','Tứ giác này có đúng MỘT cặp cạnh song song.','Only the top and bottom sides are parallel → trapezoid. (Chỉ 1 cặp cạnh song song → hình thang.)'],[FIG.paraF,'Parallelogram / Hình bình hành','Opposite sides are parallel and equal, but there are NO right angles.','Các cạnh đối song song và bằng nhau, nhưng không có góc vuông.','Two pairs of parallel sides, no right angles → parallelogram. (2 cặp cạnh song song → hình bình hành.)'],[FIG.rectF,'Rectangle / Chữ nhật','This parallelogram has 4 right angles, but the sides are NOT all equal.','Hình bình hành này có 4 góc vuông nhưng các cạnh không bằng nhau hết.','4 right angles → rectangle. Not all sides equal → not a square. (4 góc vuông → hình chữ nhật.)']]);
+ const all=['Square / Hình vuông','Rectangle / Chữ nhật','Rhombus / Hình thoi','Trapezoid / Hình thang','Parallelogram / Hình bình hành'];
+ const others=all.filter(o=>o!==v[1]);others.sort(()=>Math.random()-.5);
+ return Q('quad',1,'G4',v[0],v[2]+' Name this shape!',v[3],'rhombus = hình thoi • trapezoid = hình thang • parallelogram = hình bình hành • parallel = song song',v[4],'Viết: nêu 2 dấu hiệu (cạnh + góc) rồi gọi tên hình, vd "4 equal sides + no right angles → rhombus."',shuf([v[1],others[0],others[1],others[2]],0));},
+function(){const v=pick([['has 4 equal sides AND 4 right angles','có 4 cạnh bằng nhau VÀ 4 góc vuông','Square / Hình vuông','Only the square has BOTH properties. (Chỉ hình vuông có cả hai tính chất.)'],['is a parallelogram with 4 equal sides (right angles not required)','là hình bình hành có 4 cạnh bằng nhau (không cần góc vuông)','Rhombus / Hình thoi','4 equal sides, angles free → rhombus. (4 cạnh bằng nhau → hình thoi.)'],['is a parallelogram with 4 right angles','là hình bình hành có 4 góc vuông','Rectangle / Chữ nhật','A parallelogram with 4 right angles → rectangle. (4 góc vuông → hình chữ nhật.)'],['has exactly one pair of parallel sides','có đúng một cặp cạnh song song','Trapezoid / Hình thang','Exactly one pair of parallel sides → trapezoid. (Đúng 1 cặp song song → hình thang.)']]);
+ const opts=['Square / Hình vuông','Rhombus / Hình thoi','Rectangle / Chữ nhật','Trapezoid / Hình thang'];
+ return Q('quad',1,'G4',null,'Which quadrilateral '+v[0]+'?','Tứ giác nào '+v[1]+'?','quadrilateral = tứ giác • property = tính chất • required = bắt buộc',v[3],'Lập bảng 2 dấu hiệu (cạnh bằng nhau? góc vuông?) cho từng hình rồi chọn hình khớp đề bài.',shuf(opts,opts.indexOf(v[2])));},
+function(){const v=pick([['rectangle','hình chữ nhật','4 right angles / 4 góc vuông',['4 equal sides / 4 cạnh bằng nhau','Exactly 1 pair of parallel sides / Đúng 1 cặp song song','5 vertices / 5 đỉnh'],'Definition: a rectangle is a parallelogram with 4 right angles. Only OPPOSITE sides must be equal. (Định nghĩa HCN: 4 góc vuông; chỉ cạnh đối bằng nhau.)'],['rhombus','hình thoi','4 equal sides / 4 cạnh bằng nhau',['4 right angles / 4 góc vuông','Only 3 sides / Chỉ có 3 cạnh','Exactly 1 pair of parallel sides / Đúng 1 cặp song song'],'Definition: a rhombus is a parallelogram with 4 equal sides; the angles do not need to be 90°. (Hình thoi: 4 cạnh bằng nhau, góc không cần vuông.)'],['square','hình vuông','4 equal sides AND 4 right angles / 4 cạnh bằng và 4 góc vuông',['Only 2 right angles / Chỉ 2 góc vuông','Opposite sides NOT equal / Cạnh đối không bằng nhau','Exactly 1 pair of parallel sides / Đúng 1 cặp song song'],'A square needs BOTH: equal sides and right angles. (Hình vuông cần cả hai.)']]);
+ return Q('quad',2,'G4',null,'A '+v[0]+' ALWAYS has…','Một '+v[1]+' LUÔN LUÔN có…','always = luôn luôn • opposite sides = cạnh đối • vertices = các đỉnh',v[4],'Khi gặp từ ALWAYS, hãy kiểm tra tính chất đó có đúng với MỌI hình loại đó không rồi mới chọn.',shuf([v[2],v[3][0],v[3][1],v[3][2]],0));},
+function(){const v=pick([['Every square is a rectangle.','Mọi hình vuông đều là hình chữ nhật.',0,'A square has 4 right angles → it fits the rectangle definition. It is a special rectangle with equal sides. (Hình vuông là HCN đặc biệt.)'],['Every rectangle is a square.','Mọi hình chữ nhật đều là hình vuông.',1,'A rectangle does NOT need 4 equal sides — only squares do. (HCN không cần 4 cạnh bằng nhau.)'],['Every square is a rhombus.','Mọi hình vuông đều là hình thoi.',0,'A square has 4 equal sides → it fits the rhombus definition. (Vuông có 4 cạnh bằng → cũng là thoi.)'],['Every parallelogram is a rectangle.','Mọi hình bình hành đều là hình chữ nhật.',1,'A parallelogram does not need right angles. (Bình hành không cần có góc vuông.)']]);
+ return Q('quad',2,'G5',null,'True or false: '+v[0],'Đúng hay sai: '+v[1],'definition = định nghĩa • special = đặc biệt • fits = thỏa mãn',v[3],'Viết: nêu định nghĩa của hình "lớn" rồi kiểm tra hình "nhỏ" có thỏa mãn không → True/False.',shuf(['True / Đúng','False / Sai'],v[2]));},
+function(){const v=pick([['parallelogram','hình bình hành',['Opposite sides are parallel / Cạnh đối song song','Opposite sides are equal / Cạnh đối bằng nhau','Opposite angles are equal / Góc đối bằng nhau'],'It has 4 right angles / Có 4 góc vuông','Only rectangles and squares always have 4 right angles — a leaning parallelogram has none. (Hình bình hành nghiêng không có góc vuông nào.)'],['rhombus','hình thoi',['All 4 sides are equal / 4 cạnh bằng nhau','Opposite sides are parallel / Cạnh đối song song','Opposite angles are equal / Góc đối bằng nhau'],'It has 4 right angles / Có 4 góc vuông','A rhombus only needs equal sides. If it also had 4 right angles, it would be a square! (Thoi mà có 4 góc vuông thì thành hình vuông.)']]);
+ return Q('quad',2,'G5',null,'Which statement is NOT always true for a '+v[0]+'?','Phát biểu nào KHÔNG phải lúc nào cũng đúng với '+v[1]+'?','statement = phát biểu • NOT always true = không phải lúc nào cũng đúng • counterexample = phản ví dụ',v[4],'Vẽ một phản ví dụ (counterexample) — một hình nghiêng không có góc vuông — để chứng minh.',shuf([v[3],v[2][0],v[2][1],v[2][2]],0));},
+function(){let a,b,c,d4;do{a=5*ri(14,24);b=5*ri(14,24);c=5*ri(12,22);d4=360-a-b-c;}while(d4<30||d4>150);
+ return Q('quad',3,'G5',null,'Three angles of a quadrilateral measure '+a+'°, '+b+'° and '+c+'°. What is the fourth angle?','Ba góc của một tứ giác là '+a+'°, '+b+'° và '+c+'°. Góc thứ tư bằng bao nhiêu?','quadrilateral = tứ giác • sum of angles = tổng các góc • fourth = thứ tư',
+ 'The angles of any quadrilateral add to 360°. 360° − ('+a+'° + '+b+'° + '+c+'°) = 360° − '+(a+b+c)+'° = '+d4+'°. (Tổng 4 góc tứ giác = 360°.)','Trình bày: Fourth angle = 360° − ('+a+'° + '+b+'° + '+c+'°) = '+d4+'°. Answer: '+d4+'°.',numOpts(d4,[d4+10,d4-10,d4+20],'°'));},
+/* PERIMETER & AREA */
+function(){let l,w,P,A;do{l=ri(6,12);w=ri(3,l-1);P=2*(l+w);A=l*w;}while(A===P);
+ return Q('area',2,'G4',figRect(l,w,'#dff0fd','#2f7fd1'),'Find the PERIMETER of this rectangle ('+l+' cm by '+w+' cm).','Tính CHU VI hình chữ nhật '+l+' cm × '+w+' cm.','perimeter = chu vi • distance around = độ dài bao quanh • length/width = dài/rộng',
+ 'P = 2 × (l + w) = 2 × ('+l+' + '+w+') = 2 × '+(l+w)+' = '+P+' cm. Careful: '+A+' is the AREA — a trap! ('+A+' là diện tích — bẫy đấy!)','Trình bày: P = 2 × (l + w) = 2 × ('+l+' + '+w+') = '+P+' cm. Answer: '+P+' cm. Luôn viết công thức trước.',numOpts(P,[A,l+w,P+4],' cm'));},
+function(){let l,w,P,A;do{l=ri(5,12);w=ri(3,l-1);P=2*(l+w);A=l*w;}while(A===P);
+ return Q('area',2,'G4',figRect(l,w,'#e6fbf0','#2eb872'),'Find the AREA of this rectangle ('+l+' cm by '+w+' cm).','Tính DIỆN TÍCH hình chữ nhật '+l+' cm × '+w+' cm.','area = diện tích • square centimeters (cm²) = xăng-ti-mét vuông • multiply = nhân',
+ 'A = l × w = '+l+' × '+w+' = '+A+' cm². Area is measured in SQUARE units. ('+P+' là chu vi — đừng nhầm!)','Trình bày: A = l × w = '+l+' × '+w+' = '+A+' cm². Answer: '+A+' cm². Nhớ đơn vị có mũ 2.',numOpts(A,[P,A+l,l+w],' cm²'));},
+function(){const s=ri(5,12);const P=4*s;
+ return Q('area',2,'G4',null,'A square has a perimeter of '+P+' cm. How long is each side?','Hình vuông có chu vi '+P+' cm. Mỗi cạnh dài bao nhiêu?','square = hình vuông • each side = mỗi cạnh • divide = chia',
+ 'A square has 4 equal sides: side = P ÷ 4 = '+P+' ÷ 4 = '+s+' cm. (Cạnh = chu vi ÷ 4.)','Trình bày: Side = '+P+' ÷ 4 = '+s+' cm. Thử lại: '+s+' × 4 = '+P+' ✓. Answer: '+s+' cm.',numOpts(s,[s+1,s-1,P/2],' cm'));},
+function(){const W=pick([8,10,12]);const H1=ri(3,5);const W2=ri(3,5);const H2=ri(2,4);const A1=W*H1,A2=W2*H2,A=A1+A2;
+ return Q('area',3,'G4',figL(W,H1,W2,H2),'Find the area of this L-shaped playground.','Tính diện tích sân chơi hình chữ L.','L-shape = hình chữ L • split/decompose = chia nhỏ • add = cộng lại',
+ 'Split into 2 rectangles: bottom '+W+' × '+H1+' = '+A1+' m², top '+W2+' × '+H2+' = '+A2+' m². Total = '+A1+' + '+A2+' = '+A+' m². (Chia 2 hình chữ nhật rồi cộng.)','Trình bày: A₁ = '+W+' × '+H1+' = '+A1+' m²; A₂ = '+W2+' × '+H2+' = '+A2+' m²; A = A₁ + A₂ = '+A+' m². Answer: '+A+' m².',numOpts(A,[A1,W*(H1+H2),A+10],' m²'));},
+function(){const a=pick([2,4,6]);const n=ri(1,3);const A=a*n+a/2;
+ return Q('area',2,'G5',null,'A rectangle is '+a+' m long and '+n+'½ m wide. What is its area?','Hình chữ nhật dài '+a+' m, rộng '+n+'½ m. Diện tích là bao nhiêu?','mixed number = hỗn số • half = một nửa • wide = rộng',
+ 'A = '+a+' × '+n+'½ = ('+a+' × '+n+') + ('+a+' × ½) = '+(a*n)+' + '+(a/2)+' = '+A+' m². (Tách hỗn số: phần nguyên và ½.)','Trình bày: A = '+a+' × '+n+'½ = '+(a*n)+' + '+(a/2)+' = '+A+' m². Answer: '+A+' m².',numOpts(A,[a*n,A+a/2,a*(n+1)],' m²'));},
+function(){const l=ri(9,15);const w=ri(5,l-2);const P=2*(l+w);
+ return Q('area',3,'G4',null,'Mr Vu wants to put a fence around his '+l+' m × '+w+' m garden. How many meters of fence does he need?','Thầy Vũ muốn rào quanh khu vườn '+l+' m × '+w+' m. Cần bao nhiêu mét rào?','fence = hàng rào • around = bao quanh (→ chu vi!) • need = cần',
+ '"Fence AROUND" means perimeter! P = 2 × ('+l+' + '+w+') = '+P+' m. '+(l*w)+' is the area — wrong meaning. (Rào quanh → chu vi, không phải diện tích.)','Bước 1: từ khóa "around" → chu vi. Bước 2: P = 2 × ('+l+' + '+w+') = '+P+' m. Answer: '+P+' m of fence.',numOpts(P,[l*w,l+w,P-2],' m'));},
+/* VOLUME */
+function(){const l=ri(2,4),w=ri(2,3),h=ri(2,3);const V=l*w*h;
+ return Q('vol',1,'G5',figPrism(l,w,h),'How many unit cubes make up this prism ('+l+' × '+w+' × '+h+')?','Hình hộp này ('+l+' × '+w+' × '+h+') gồm bao nhiêu khối lập phương đơn vị?','unit cube = khối lập phương đơn vị • layer = lớp • prism = hình hộp',
+ 'One layer has '+l+' × '+w+' = '+(l*w)+' cubes. There are '+h+' layers: '+(l*w)+' × '+h+' = '+V+' cubes. (Mỗi lớp '+(l*w)+' khối × '+h+' lớp.)','Trình bày: Cubes in 1 layer = '+l+' × '+w+' = '+(l*w)+'. Layers = '+h+'. Total = '+(l*w)+' × '+h+' = '+V+' unit cubes.',numOpts(V,[l*w,V+2,V-2],' cubes'));},
+function(){const l=ri(3,7),w=ri(2,5),h=ri(2,6);const V=l*w*h;
+ return Q('vol',2,'G5',null,'Find the volume of a box: length '+l+' cm, width '+w+' cm, height '+h+' cm.','Tính thể tích hộp: dài '+l+' cm, rộng '+w+' cm, cao '+h+' cm.','volume = thể tích • cubic cm (cm³) = xăng-ti-mét khối • height = chiều cao',
+ 'V = l × w × h = '+l+' × '+w+' × '+h+' = '+V+' cm³. Volume uses CUBIC units. (Thể tích = dài × rộng × cao.)','Trình bày: V = l × w × h = '+l+' × '+w+' × '+h+' = '+V+' cm³. Answer: '+V+' cm³. Nhớ đơn vị mũ 3.',numOpts(V,[l+w+h,V+10,V-10],' cm³'));},
+function(){const B=pick([12,18,20,24,30]);const h=ri(3,6);const V=B*h;
+ return Q('vol',2,'G5',null,'The base of a prism has an area of '+B+' cm². Its height is '+h+' cm. What is its volume?','Đáy hình hộp có diện tích '+B+' cm², chiều cao '+h+' cm. Thể tích bằng bao nhiêu?','base = mặt đáy • B = diện tích đáy • formula = công thức',
+ 'Second volume formula: V = B × h = '+B+' × '+h+' = '+V+' cm³. (V = diện tích đáy × chiều cao.)','Trình bày: V = B × h = '+B+' × '+h+' = '+V+' cm³. Dùng công thức này khi đề cho sẵn diện tích đáy.',numOpts(V,[B+h,V+10,V-10],' cm³'));},
+function(){const h=ri(2,6),l=ri(3,6),w=ri(2,4);const V=l*w*h;
+ return Q('vol',2,'G5',null,'A box has volume '+V+' cm³. Its length is '+l+' cm and width is '+w+' cm. What is its height?','Hộp có thể tích '+V+' cm³, dài '+l+' cm, rộng '+w+' cm. Chiều cao là bao nhiêu?','missing dimension = kích thước còn thiếu • divide = chia • check = thử lại',
+ 'h = V ÷ (l × w) = '+V+' ÷ '+(l*w)+' = '+h+' cm. Check: '+l+' × '+w+' × '+h+' = '+V+' ✓. (Lấy thể tích chia diện tích đáy.)','Trình bày: l × w = '+(l*w)+'. h = '+V+' ÷ '+(l*w)+' = '+h+' cm. Thử lại: '+l+' × '+w+' × '+h+' = '+V+' ✓.',numOpts(h,[h+1,h-1,h+2],' cm'));},
+function(){const obj=pick([['juice box','hộp sữa'],['lunch box','hộp cơm'],['gift box','hộp quà'],['pencil box','hộp bút']]);const a=ri(4,10),b=ri(3,6),c=ri(5,12);const V=a*b*c;
+ return Q('vol',3,'G5',null,'A '+obj[0]+' is '+a+' cm long, '+b+' cm wide and '+c+' cm tall. How much space does it take up?','Một '+obj[1]+' dài '+a+' cm, rộng '+b+' cm, cao '+c+' cm. Nó chiếm bao nhiêu không gian?','space = không gian (→ thể tích) • take up = chiếm • tall = cao',
+ '"Space it takes up" = volume. V = '+a+' × '+b+' × '+c+' = '+V+' cm³. (Từ khóa "chiếm không gian" → thể tích.)','Bước 1: "space" → thể tích. Bước 2: V = '+a+' × '+b+' × '+c+' = '+V+' cm³. Answer: '+V+' cm³.',numOpts(V,[V+20,V-20,a*b+c],' cm³'));},
+function(){const v=pick([['a classroom','một phòng học','Cubic meters (m³)','A classroom is BIG → measure in cubic meters m³. (Phòng học lớn → mét khối m³.)'],['a swimming pool','một bể bơi','Cubic meters (m³)','A pool is BIG → cubic meters m³. (Bể bơi lớn → m³.)'],['a small dice','một viên xúc xắc nhỏ','Cubic centimeters (cm³)','A dice is small → cubic centimeters cm³. (Vật nhỏ → cm³.)'],['a juice box','một hộp sữa','Cubic centimeters (cm³)','A juice box is small → cm³. (Hộp sữa nhỏ → cm³.)']]);
+ const opts=['Centimeters (cm)','Square meters (m²)','Cubic meters (m³)','Cubic centimeters (cm³)'];
+ return Q('vol',3,'G5',null,'Which unit is best for measuring the volume of '+v[0]+'?','Đơn vị nào phù hợp nhất để đo thể tích '+v[1]+'?','unit = đơn vị • cubic = khối (mũ 3) • measure = đo',
+ 'Volume always needs CUBIC units (m³ or cm³). '+v[3]+' cm đo độ dài, m² đo diện tích.','Quy tắc: độ dài → m/cm; diện tích → m²; thể tích → m³/cm³. Chọn theo độ lớn của vật.',shuf(opts,opts.indexOf(v[2])));},
+/* COORDINATES */
+function(){const x=ri(1,5),y=ri(1,5);const c='('+x+', '+y+')';
+ const cands=['('+y+', '+x+')','('+x+', '+(y>1?y-1:y+1)+')','('+(x<5?x+1:x-1)+', '+y+')','('+(x>1?x-1:x+1)+', '+(y<5?y+1:y-1)+')'];
+ const ds=[];for(let i=0;i<cands.length&&ds.length<3;i++){if(cands[i]!==c&&ds.indexOf(cands[i])<0)ds.push(cands[i]);}
+ return Q('coord',1,'G5',figGridP(x,y),'What ordered pair names point P?','Điểm P có tọa độ là gì?','ordered pair = cặp tọa độ • over = sang ngang • up = đi lên',
+ 'From 0: go RIGHT '+x+', then UP '+y+' → ('+x+', '+y+'). Order matters: x first, y second! (Sang phải '+x+', đi lên '+y+'. Luôn viết x trước, y sau.)','Trình bày: "Start at 0. Move right '+x+' (x = '+x+'), then up '+y+' (y = '+y+'). P = ('+x+', '+y+')."',shuf([c,ds[0],ds[1],ds[2]],0));},
+function(){const v=pick([['horizontal (going left–right)','nằm ngang (trái–phải)','x-axis / trục x','The x-axis is horizontal, the y-axis is vertical. (Trục x nằm ngang.)'],['vertical (going up–down)','thẳng đứng (lên–xuống)','y-axis / trục y','The y-axis is vertical, the x-axis is horizontal. (Trục y thẳng đứng.)']]);
+ const opts=['x-axis / trục x','y-axis / trục y','origin / gốc tọa độ','ordered pair / cặp tọa độ'];
+ return Q('coord',1,'G5',null,'The '+v[0]+' axis is called the…','Trục '+v[1]+' gọi là…','horizontal = nằm ngang • vertical = thẳng đứng • axis = trục • origin = gốc tọa độ',v[3],'Mẹo nhớ: chữ "y" có nét sổ DỌC dài → y là trục dọc; còn lại x là trục ngang.',shuf(opts,opts.indexOf(v[2])));},
+function(){const sx=ri(0,3),sy=ri(0,3),r=ri(1,4),u=ri(1,4);const ex=sx+r,ey=sy+u;const c='('+ex+', '+ey+')';
+ const cands=['('+(sx+u)+', '+(sy+r)+')','('+ex+', '+sy+')','('+sx+', '+ey+')','('+(ex+1)+', '+ey+')'];
+ const ds=[];for(let i=0;i<cands.length&&ds.length<3;i++){if(cands[i]!==c&&ds.indexOf(cands[i])<0)ds.push(cands[i]);}
+ return Q('coord',2,'G5',null,'Start at ('+sx+', '+sy+'). Move '+r+' units right and '+u+' units up. Where are you now?','Bắt đầu từ ('+sx+', '+sy+'). Đi sang phải '+r+' ô và lên trên '+u+' ô. Bạn đang ở đâu?','move right = sang phải (+x) • move up = đi lên (+y) • units = ô/đơn vị',
+ 'Right '+r+': x = '+sx+' + '+r+' = '+ex+'. Up '+u+': y = '+sy+' + '+u+' = '+ey+'. New point: ('+ex+', '+ey+'). (Sang phải cộng vào x, đi lên cộng vào y.)','Trình bày: x = '+sx+' + '+r+' = '+ex+'; y = '+sy+' + '+u+' = '+ey+' → ('+ex+', '+ey+').',shuf([c,ds[0],ds[1],ds[2]],0));},
+function(){const k=ri(2,9);const v=pick([[0,'(0, '+k+')','x = 0 means you do not move right at all — the point sits on the vertical y-axis. (x = 0 → điểm nằm trên trục y.)','On the y-axis / Trên trục y'],[1,'('+k+', 0)','y = 0 means you do not go up at all — the point sits on the horizontal x-axis. (y = 0 → điểm nằm trên trục x.)','On the x-axis / Trên trục x']]);
+ const opts=['On the x-axis / Trên trục x','On the y-axis / Trên trục y','At the origin / Tại gốc tọa độ','Outside the grid / Ngoài lưới'];
+ return Q('coord',2,'G5',null,'The point '+v[1]+' lies…','Điểm '+v[1]+' nằm ở đâu?','lies on = nằm trên • origin = gốc tọa độ (0,0) • axis = trục',v[2],'Quy tắc: x = 0 → trên trục y; y = 0 → trên trục x; cả hai = 0 → gốc tọa độ.',shuf(opts,opts.indexOf(v[3])));},
+function(){const x1=ri(0,2),y1=ri(0,2);const x2=x1+ri(2,Math.min(4,5-x1));const y2=y1+ri(2,Math.min(3,5-y1));const c='('+x1+', '+y2+')';
+ const cands=['('+y2+', '+x1+')','('+(x1+1)+', '+y2+')','('+x1+', '+(y2-1)+')','('+(x1>0?x1-1:x1+1)+', '+y2+')'];
+ const ds=[];for(let i=0;i<cands.length&&ds.length<3;i++){if(cands[i]!==c&&ds.indexOf(cands[i])<0)ds.push(cands[i]);}
+ return Q('coord',3,'G5',figGridR(x1,y1,x2,y2),'Three vertices of a rectangle are ('+x1+', '+y1+'), ('+x2+', '+y1+') and ('+x2+', '+y2+'). What is the fourth vertex?','Ba đỉnh của hình chữ nhật là ('+x1+', '+y1+'), ('+x2+', '+y1+') và ('+x2+', '+y2+'). Đỉnh thứ tư là gì?','vertex (vertices) = đỉnh • fourth = thứ tư • line up = thẳng hàng',
+ 'The fourth corner lines up: same x as ('+x1+', '+y1+') → x = '+x1+'; same y as ('+x2+', '+y2+') → y = '+y2+'. So ('+x1+', '+y2+'). (Thẳng cột và thẳng hàng với 2 đỉnh đã cho.)','Trình bày: "Share x = '+x1+' with ('+x1+', '+y1+') and y = '+y2+' with ('+x2+', '+y2+') → fourth vertex ('+x1+', '+y2+')."',shuf([c,ds[0],ds[1],ds[2]],0));},
+function(){const a=ri(0,4);const d=ri(2,5);const b=a+d;const k=ri(1,8);const mode=pick([0,1]);
+ const p1=mode?'('+k+', '+a+')':'('+a+', '+k+')';const p2=mode?'('+k+', '+b+')':'('+b+', '+k+')';
+ const same=mode?'x':'y';const sub=mode?'y':'x';
+ return Q('coord',3,'G5',null,'How far apart are the points '+p1+' and '+p2+'?','Hai điểm '+p1+' và '+p2+' cách nhau bao xa?','how far apart = cách nhau bao xa • distance = khoảng cách • same = giống nhau',
+ 'Both points have the same '+same+'-coordinate → they are on one straight line. Distance = '+b+' − '+a+' = '+d+' units. (Cùng '+same+' → lấy hiệu hai tọa độ '+sub+'.)','Trình bày: "Same '+same+'-coordinate → distance = '+b+' − '+a+' = '+d+' units." Cùng hàng thì trừ hoành độ, cùng cột thì trừ tung độ.',numOpts(d,[b,a+b,d+1],' units'));}
+];
+const QS = GENS.map(f=>f());
+
 const DANG_LABEL = {1:'🔍 Dạng 1 · Identify / Nhận biết', 2:'🧮 Dạng 2 · Calculate / Tính toán', 3:'📖 Dạng 3 · Word problems / Toán đố'};
 const TOPIC_NAME = {angles:'Lines & Angles', tri:'Triangles', quad:'Quadrilaterals', area:'Perimeter & Area', vol:'Volume', coord:'Coordinates'};
 
@@ -642,8 +822,11 @@ function renderQuestions(){
   topics.forEach(t=>{
     const wrap = $('qs-'+t);
     let html = '', lastD = 0, num = 0;
-    QS.forEach((q,i)=>{
-      if(q.t!==t) return;
+    const items = [];
+    QS.forEach((q,i)=>{ if(q.t===t) items.push([q,i]); });
+    items.sort((a,b)=> a[0].d - b[0].d);
+    items.forEach(pair=>{
+      const q = pair[0], i = pair[1];
       num++;
       if(q.d!==lastD){ html += '<div class="dang-title">'+DANG_LABEL[q.d]+'</div>'; lastD = q.d; }
       html += '<div class="qcard" id="qc'+i+'">'
@@ -747,7 +930,7 @@ function renderResult(e){
    + '</div><div class="rbtns">'
    + '<button class="gbtn" onclick="copyResult(this)">📋 Copy kết quả</button>'
    + (TEACHER_ZALO ? '<a class="gbtn purple" style="text-decoration:none" href="https://zalo.me/'+TEACHER_ZALO+'" target="_blank" onclick="copyResult(this)">💬 Gửi Zalo cho thầy</a>' : '')
-   + '<button class="gbtn" style="background:#6b7a99;box-shadow:0 3px 0 #4d5a73" onclick="location.reload()">🔄 Làm lại / Try again</button>'
+   + '<button class="gbtn" style="background:#6b7a99;box-shadow:0 3px 0 #4d5a73" onclick="location.reload()">🔄 Làm đề mới / New quiz</button>'
    + '</div><p style="margin-top:10px;font-size:13px;color:var(--mut)">Bấm Copy rồi dán gửi cho thầy qua Zalo/Messenger nhé!</p></div>';
   window._lastEntry = e;
 }
