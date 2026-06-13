@@ -130,6 +130,23 @@ section.topic.active{display:block;animation:fade .35s}
 .modal p{color:var(--mut);font-size:14px;margin-bottom:14px}
 .modal input{width:100%;font-family:inherit;font-size:16px;font-weight:700;padding:11px 14px;border:2.5px solid #d7e7f8;border-radius:12px;margin-bottom:10px;outline-color:var(--blue2)}
 .modal .err{color:var(--red);font-size:13.5px;font-weight:700;min-height:18px;margin-bottom:4px}
+.unit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.unit-card{border:2.5px solid #d7e7f8;border-radius:16px;padding:16px 12px;cursor:pointer;background:#f7fbff;transition:.15s;text-align:center}
+.unit-card:hover{border-color:var(--blue2);background:#e8f3fd;transform:translateY(-2px)}
+.unit-card .ic{font-size:34px}
+.unit-card .un{font-weight:800;color:var(--navy);font-size:15.5px;margin-top:4px}
+.unit-card .ud{font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.35}
+.unit-card .ug{display:inline-block;margin-top:6px;font-size:11px;font-weight:800;color:#0e7a44;background:#e6f7ef;border-radius:999px;padding:2px 9px}
+.ex-box{background:#eef6ff;border:1.5px solid #cfe3f7;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:14.5px;line-height:1.6}
+.ex-box .extag{display:inline-block;font-weight:800;color:#fff;background:var(--blue2);border-radius:8px;padding:2px 9px;font-size:12px;margin-bottom:6px}
+.calc{font-family:'Baloo 2',monospace;font-size:16px;font-weight:700;color:var(--navy);background:#fff;border-radius:8px;padding:8px 12px;display:inline-block;margin:4px 0;letter-spacing:.5px}
+.calc .hl{color:var(--red)}.calc .g{color:var(--green)}
+.pv-table{border-collapse:collapse;margin:8px auto}
+.pv-table td,.pv-table th{border:2px solid #cfe3f7;padding:6px 12px;text-align:center;font-weight:700;font-size:14px}
+.pv-table th{background:var(--blue);color:#fff;font-size:12.5px}
+.fbar{display:inline-flex;border:2px solid #2f7fd1;border-radius:6px;overflow:hidden;vertical-align:middle;margin:0 4px}
+.fbar span{display:inline-block;width:24px;height:24px;border-right:1px solid #2f7fd1}
+.fbar span:last-child{border-right:none}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
 @media(max-width:540px){
   .opts{grid-template-columns:1fr}
@@ -148,7 +165,17 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
     <input id="inpName" type="text" maxlength="40" placeholder="Họ và tên / Full name">
     <input id="inpPhone" type="tel" maxlength="11" placeholder="Số điện thoại / Phone (09xxxxxxxx)">
     <div class="err" id="infoErr"></div>
-    <button class="gbtn" id="startBtn">🚀 Bắt đầu / Start!</button>
+    <button class="gbtn" id="startBtn">🚀 Tiếp tục / Continue!</button>
+  </div>
+</div>
+
+<!-- ===== unit picker modal ===== -->
+<div class="modal-bg" id="unitModal">
+  <div class="modal" style="max-width:560px">
+    <div style="font-size:40px">📚</div>
+    <h3>Chọn nội dung luyện tập</h3>
+    <p>Choose a unit to practice — mỗi unit có lý thuyết riêng, bài tập và game!</p>
+    <div class="unit-grid" id="unitGrid"></div>
   </div>
 </div>
 
@@ -159,9 +186,12 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
     <rect x="150" y="150" width="70" height="46" rx="6" fill="#fff"/><circle cx="720" cy="170" r="26" fill="#fff"/>
     <polygon points="420,140 470,140 455,185 405,185" fill="#fff"/>
   </svg>
-  <h1>📐 Geometry Quest – Grade 4 &amp; 5</h1>
-  <p>Everyday Mathematics • Lines, angles, shapes, area, volume &amp; coordinates — learn, practice &amp; play!</p>
-  <div class="student-chip" id="studentChip" title="Đổi học sinh / Change student">👤 <span id="chipName">—</span> ✏️</div>
+  <h1 id="hdrTitle">📐 Maths Quest – Grade 4 &amp; 5</h1>
+  <p id="hdrSub">Everyday Mathematics • Chọn một Unit để học lý thuyết, luyện tập &amp; chơi game!</p>
+  <div style="position:relative;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+    <div class="student-chip" id="studentChip" title="Đổi học sinh / Change student">👤 <span id="chipName">—</span> ✏️</div>
+    <div class="student-chip" id="unitChip" title="Đổi Unit / Change unit">📚 <span id="chipUnit">—</span> 🔄</div>
+  </div>
 </header>
 
 <div class="statbar">
@@ -173,174 +203,32 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
 </div>
 
 <nav class="tabbar" id="tabbar">
-  <button class="tab active" data-t="angles">📏 Lines &amp; Angles</button>
-  <button class="tab" data-t="tri">🔺 Triangles</button>
-  <button class="tab" data-t="quad">⬜ Quadrilaterals</button>
-  <button class="tab" data-t="area">📐 Perimeter &amp; Area</button>
-  <button class="tab" data-t="vol">🧊 Volume</button>
-  <button class="tab" data-t="coord">🗺️ Coordinates</button>
+  <button class="tab active" data-t="theory">📖 Lý thuyết / Theory</button>
+  <button class="tab" data-t="practice">✏️ Luyện tập / Practice</button>
   <button class="tab" data-t="games">🎮 Games</button>
   <button class="tab" data-t="board">🏆 Kết quả &amp; Xếp hạng</button>
 </nav>
 
 <main>
-
-<!-- ============ LINES & ANGLES ============ -->
-<section class="topic active" id="topic-angles">
-  <div class="topic-head"><h2>📏 Lines, Rays &amp; Angles</h2><div class="sub">Đường thẳng, tia, đoạn thẳng và góc (Grade 4 • Unit 1, 6)</div></div>
-  <div class="lesson">
-    <h3>📌 Key ideas / Kiến thức chính</h3>
-    <ul>
-      <li><b>Line segment</b> — 2 endpoints. <span class="vn">Đoạn thẳng — có 2 điểm đầu mút.</span></li>
-      <li><b>Ray</b> — 1 endpoint, goes on forever in one direction. <span class="vn">Tia — 1 điểm gốc, kéo dài mãi về một phía.</span></li>
-      <li><b>Line</b> — no endpoints, goes on forever both ways. <span class="vn">Đường thẳng — kéo dài mãi về hai phía.</span></li>
-      <li><b>Right angle</b> = 90° • <b>Acute</b> &lt; 90° • <b>Obtuse</b> &gt; 90° • <b>Straight</b> = 180°. <span class="vn">Góc vuông • nhọn • tù • bẹt.</span></li>
-      <li><b>Parallel lines</b> never meet; <b>perpendicular lines</b> cross at 90°. <span class="vn">Song song — không bao giờ cắt nhau; vuông góc — cắt nhau tạo góc 90°.</span></li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="110" height="34" viewBox="0 0 110 34"><line x1="12" y1="17" x2="98" y2="17" stroke="#2f7fd1" stroke-width="3"/><circle cx="12" cy="17" r="4.5" fill="#2f7fd1"/><circle cx="98" cy="17" r="4.5" fill="#2f7fd1"/></svg><br>segment / đoạn thẳng</div>
-      <div class="fig"><svg width="110" height="34" viewBox="0 0 110 34"><line x1="12" y1="17" x2="94" y2="17" stroke="#19a7a0" stroke-width="3"/><circle cx="12" cy="17" r="4.5" fill="#19a7a0"/><polygon points="92,10 106,17 92,24" fill="#19a7a0"/></svg><br>ray / tia</div>
-      <div class="fig"><svg width="110" height="34" viewBox="0 0 110 34"><line x1="16" y1="17" x2="94" y2="17" stroke="#7b5ce0" stroke-width="3"/><polygon points="18,10 4,17 18,24" fill="#7b5ce0"/><polygon points="92,10 106,17 92,24" fill="#7b5ce0"/></svg><br>line / đường thẳng</div>
-      <div class="fig"><svg width="84" height="74" viewBox="0 0 84 74"><line x1="10" y1="64" x2="76" y2="64" stroke="#ff8c42" stroke-width="3"/><line x1="10" y1="64" x2="10" y2="6" stroke="#ff8c42" stroke-width="3"/><rect x="10" y="50" width="14" height="14" fill="none" stroke="#ff8c42" stroke-width="2"/></svg><br>right 90° / góc vuông</div>
-      <div class="fig"><svg width="84" height="74" viewBox="0 0 84 74"><line x1="8" y1="64" x2="78" y2="64" stroke="#2eb872" stroke-width="3"/><line x1="8" y1="64" x2="58" y2="14" stroke="#2eb872" stroke-width="3"/><path d="M 30 64 A 22 22 0 0 0 23 49" fill="none" stroke="#2eb872" stroke-width="2"/></svg><br>acute &lt;90° / góc nhọn</div>
-      <div class="fig"><svg width="98" height="74" viewBox="0 0 98 74"><line x1="44" y1="64" x2="94" y2="64" stroke="#ef5d60" stroke-width="3"/><line x1="44" y1="64" x2="8" y2="22" stroke="#ef5d60" stroke-width="3"/><path d="M 66 64 A 22 22 0 0 0 30 48" fill="none" stroke="#ef5d60" stroke-width="2"/></svg><br>obtuse &gt;90° / góc tù</div>
-    </div>
-    <div class="memo">💜 Ghi nhớ: Kim đồng hồ lúc 3:00 tạo góc vuông 90°. A full turn / vòng tròn đầy đủ = 360°.</div>
-  </div>
-  <div id="qs-angles"></div>
+<section class="topic active" id="topic-theory">
+  <div class="topic-head"><h2 id="theoryTitle">Lý thuyết</h2><div class="sub" id="theorySub"></div></div>
+  <div id="theoryWrap"></div>
+  <div style="text-align:center;margin-top:18px"><button class="gbtn" onclick="document.querySelector('.tab[data-t=&quot;practice&quot;]').click()">✏️ Bắt đầu luyện tập / Start practice →</button></div>
 </section>
 
-<!-- ============ TRIANGLES ============ -->
-<section class="topic" id="topic-tri">
-  <div class="topic-head"><h2>🔺 Triangles</h2><div class="sub">Tam giác — phân loại theo cạnh &amp; góc (Grade 4–5)</div></div>
-  <div class="lesson">
-    <h3>📌 Key ideas / Kiến thức chính</h3>
-    <ul>
-      <li>By sides / theo cạnh: <b>equilateral</b> (3 equal sides) • <b>isosceles</b> (at least 2 equal) • <b>scalene</b> (no equal sides). <span class="vn">Tam giác đều • cân • thường.</span></li>
-      <li>By angles / theo góc: <b>right</b> (1 góc 90°) • <b>acute</b> (3 góc nhọn) • <b>obtuse</b> (1 góc tù).</li>
-      <li>The 3 angles of any triangle add up to <b>180°</b>. <span class="vn">Tổng 3 góc trong tam giác = 180°.</span></li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="90" height="76" viewBox="0 0 90 76"><polygon points="45,8 8,68 82,68" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/><line x1="22" y1="36" x2="30" y2="41" stroke="#2f7fd1" stroke-width="2.5"/><line x1="60" y1="41" x2="68" y2="36" stroke="#2f7fd1" stroke-width="2.5"/><line x1="41" y1="73" x2="49" y2="63" stroke="#2f7fd1" stroke-width="2.5"/></svg><br>equilateral / đều</div>
-      <div class="fig"><svg width="90" height="76" viewBox="0 0 90 76"><polygon points="45,8 20,68 70,68" fill="#e6fbf0" stroke="#2eb872" stroke-width="3"/></svg><br>isosceles / cân</div>
-      <div class="fig"><svg width="90" height="76" viewBox="0 0 90 76"><polygon points="12,12 12,68 80,68" fill="#fff0e2" stroke="#ff8c42" stroke-width="3"/><rect x="12" y="56" width="12" height="12" fill="none" stroke="#ff8c42" stroke-width="2"/></svg><br>right / vuông</div>
-      <div class="fig"><svg width="100" height="76" viewBox="0 0 100 76"><polygon points="8,68 92,68 70,22" fill="#f4eefe" stroke="#7b5ce0" stroke-width="3"/></svg><br>scalene / thường</div>
-    </div>
-    <div class="memo">💜 Mẹo: Biết 2 góc → góc còn lại = 180° − (góc 1 + góc 2).</div>
-  </div>
-  <div id="qs-tri"></div>
+<section class="topic" id="topic-practice">
+  <div class="topic-head"><h2 id="practiceTitle">Luyện tập</h2><div class="sub">🎲 Mỗi lần tải lại trang là một đề mới — số liệu &amp; đáp án thay đổi ngẫu nhiên!</div></div>
+  <div id="practiceWrap"></div>
 </section>
 
-<!-- ============ QUADRILATERALS ============ -->
-<section class="topic" id="topic-quad">
-  <div class="topic-head"><h2>⬜ Quadrilaterals</h2><div class="sub">Tứ giác và "gia đình" tứ giác (Grade 4–5)</div></div>
-  <div class="lesson">
-    <h3>📌 The quadrilateral family / Gia đình tứ giác</h3>
-    <ul>
-      <li><b>Quadrilateral</b> — any shape with 4 sides; angles add up to <b>360°</b>. <span class="vn">Tứ giác — 4 cạnh, tổng các góc = 360°.</span></li>
-      <li><b>Trapezoid</b> — has at least 1 pair of parallel sides. <span class="vn">Hình thang — có ít nhất 1 cặp cạnh song song.</span></li>
-      <li><b>Parallelogram</b> — 2 pairs of parallel sides; opposite sides equal. <span class="vn">Hình bình hành.</span></li>
-      <li><b>Rectangle</b> — parallelogram with 4 right angles. <span class="vn">Hình chữ nhật.</span> • <b>Rhombus</b> — parallelogram with 4 equal sides. <span class="vn">Hình thoi.</span></li>
-      <li><b>Square</b> — 4 equal sides AND 4 right angles → it is also a rectangle &amp; a rhombus! <span class="vn">Hình vuông vừa là HCN vừa là hình thoi.</span></li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="80" height="66" viewBox="0 0 80 66"><rect x="15" y="8" width="50" height="50" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/></svg><br>square / vuông</div>
-      <div class="fig"><svg width="96" height="66" viewBox="0 0 96 66"><rect x="8" y="14" width="80" height="38" fill="#e6fbf0" stroke="#2eb872" stroke-width="3"/></svg><br>rectangle / chữ nhật</div>
-      <div class="fig"><svg width="100" height="66" viewBox="0 0 100 66"><polygon points="24,10 94,10 76,58 6,58" fill="#fff0e2" stroke="#ff8c42" stroke-width="3"/></svg><br>parallelogram / bình hành</div>
-      <div class="fig"><svg width="86" height="72" viewBox="0 0 86 72"><polygon points="43,6 78,36 43,66 8,36" fill="#f4eefe" stroke="#7b5ce0" stroke-width="3"/></svg><br>rhombus / thoi</div>
-      <div class="fig"><svg width="96" height="66" viewBox="0 0 96 66"><polygon points="28,10 68,10 90,58 6,58" fill="#ffeef0" stroke="#ef5d60" stroke-width="3"/></svg><br>trapezoid / thang</div>
-    </div>
-    <div class="memo">💜 Ghi nhớ: Every square is a rectangle, but not every rectangle is a square! (Mọi hình vuông đều là hình chữ nhật.)</div>
-  </div>
-  <div id="qs-quad"></div>
-</section>
-
-<!-- ============ PERIMETER & AREA ============ -->
-<section class="topic" id="topic-area">
-  <div class="topic-head"><h2>📐 Perimeter &amp; Area</h2><div class="sub">Chu vi &amp; diện tích (Grade 4 • Unit 4, Grade 5 fractional sides)</div></div>
-  <div class="lesson">
-    <h3>📌 Formulas / Công thức</h3>
-    <ul>
-      <li><b>Perimeter</b> = distance around: P = 2 × (l + w). <span class="vn">Chu vi HCN = 2 × (dài + rộng). Đơn vị: cm, m…</span></li>
-      <li><b>Area</b> = space inside: A = l × w. <span class="vn">Diện tích HCN = dài × rộng. Đơn vị: cm², m²…</span></li>
-      <li>Odd "L" shapes: split into rectangles, find each area, then <b>add</b>. <span class="vn">Hình chữ L: chia thành các HCN rồi cộng diện tích.</span></li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="170" height="110" viewBox="0 0 170 110"><rect x="20" y="18" width="132" height="66" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/><line x1="42" y1="18" x2="42" y2="84" stroke="#9ec7ef" stroke-width="1.5"/><line x1="64" y1="18" x2="64" y2="84" stroke="#9ec7ef" stroke-width="1.5"/><line x1="86" y1="18" x2="86" y2="84" stroke="#9ec7ef" stroke-width="1.5"/><line x1="108" y1="18" x2="108" y2="84" stroke="#9ec7ef" stroke-width="1.5"/><line x1="130" y1="18" x2="130" y2="84" stroke="#9ec7ef" stroke-width="1.5"/><line x1="20" y1="40" x2="152" y2="40" stroke="#9ec7ef" stroke-width="1.5"/><line x1="20" y1="62" x2="152" y2="62" stroke="#9ec7ef" stroke-width="1.5"/><text x="86" y="101" text-anchor="middle" font-size="13" font-weight="700" fill="#2b3a55">l = 6</text><text x="10" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#2b3a55">3</text></svg><br>A = 6 × 3 = 18 sq units</div>
-    </div>
-    <div class="memo">💜 Perimeter (chu vi) đo bằng cm, m • Area (diện tích) đo bằng cm², m² — đừng nhầm nhé!</div>
-  </div>
-  <div id="qs-area"></div>
-</section>
-
-<!-- ============ VOLUME ============ -->
-<section class="topic" id="topic-vol">
-  <div class="topic-head"><h2>🧊 Volume</h2><div class="sub">Thể tích hình hộp chữ nhật (Grade 5 • Unit 1)</div></div>
-  <div class="lesson">
-    <h3>📌 Key ideas / Kiến thức chính</h3>
-    <ul>
-      <li><b>Volume</b> = number of unit cubes that fill a box. <span class="vn">Thể tích = số khối lập phương đơn vị lấp đầy hộp.</span></li>
-      <li>V = l × w × h (length × width × height). <span class="vn">V = dài × rộng × cao.</span></li>
-      <li>V = B × h, where B = area of the base. <span class="vn">V = diện tích đáy × chiều cao.</span></li>
-      <li>Units / đơn vị: cubic cm (cm³), cubic m (m³)…</li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="150" height="110" viewBox="0 0 150 110"><polygon points="22,50 94,50 118,30 46,30" fill="#cfe9fc" stroke="#2f7fd1" stroke-width="2.5"/><polygon points="94,50 118,30 118,78 94,98" fill="#a8d4f5" stroke="#2f7fd1" stroke-width="2.5"/><rect x="22" y="50" width="72" height="48" fill="#dff0fd" stroke="#2f7fd1" stroke-width="2.5"/><line x1="46" y1="50" x2="46" y2="98" stroke="#2f7fd1" stroke-width="1.3"/><line x1="70" y1="50" x2="70" y2="98" stroke="#2f7fd1" stroke-width="1.3"/><line x1="22" y1="74" x2="94" y2="74" stroke="#2f7fd1" stroke-width="1.3"/><line x1="34" y1="40" x2="106" y2="40" stroke="#2f7fd1" stroke-width="1.3"/><line x1="58" y1="30" x2="34" y2="50" stroke="#2f7fd1" stroke-width="1.3"/><line x1="82" y1="30" x2="58" y2="50" stroke="#2f7fd1" stroke-width="1.3"/><line x1="106" y1="30" x2="82" y2="50" stroke="#2f7fd1" stroke-width="1.3"/><line x1="106" y1="40" x2="106" y2="88" stroke="#2f7fd1" stroke-width="1.3"/><text x="58" y="109" text-anchor="middle" font-size="12" font-weight="700" fill="#2b3a55">l=3</text><text x="132" y="60" font-size="12" font-weight="700" fill="#2b3a55">h=2</text><text x="118" y="22" font-size="12" font-weight="700" fill="#2b3a55">w=2</text></svg><br>V = 3 × 2 × 2 = 12 cubes</div>
-    </div>
-    <div class="memo">💜 Thiếu 1 kích thước? Lấy V chia cho 2 kích thước đã biết: h = V ÷ (l × w).</div>
-  </div>
-  <div id="qs-vol"></div>
-</section>
-
-<!-- ============ COORDINATES ============ -->
-<section class="topic" id="topic-coord">
-  <div class="topic-head"><h2>🗺️ Coordinate Grid</h2><div class="sub">Lưới tọa độ — góc phần tư thứ nhất (Grade 5 • Unit 4)</div></div>
-  <div class="lesson">
-    <h3>📌 Key ideas / Kiến thức chính</h3>
-    <ul>
-      <li>An ordered pair <b>(x, y)</b>: go <b>right x</b>, then <b>up y</b>. <span class="vn">Cặp tọa độ (x, y): đi sang phải x ô, rồi đi lên y ô. "Over then up!"</span></li>
-      <li><b>x-axis</b> = horizontal / trục ngang • <b>y-axis</b> = vertical / trục dọc.</li>
-      <li>The <b>origin</b> is (0, 0) — where the axes meet. <span class="vn">Gốc tọa độ (0,0).</span></li>
-    </ul>
-    <div class="figs">
-      <div class="fig"><svg width="170" height="150" viewBox="0 0 170 150"><g stroke="#cfe3f7" stroke-width="1.5"><line x1="30" y1="10" x2="30" y2="130"/><line x1="54" y1="10" x2="54" y2="130"/><line x1="78" y1="10" x2="78" y2="130"/><line x1="102" y1="10" x2="102" y2="130"/><line x1="126" y1="10" x2="126" y2="130"/><line x1="150" y1="10" x2="150" y2="130"/><line x1="30" y1="10" x2="150" y2="10"/><line x1="30" y1="34" x2="150" y2="34"/><line x1="30" y1="58" x2="150" y2="58"/><line x1="30" y1="82" x2="150" y2="82"/><line x1="30" y1="106" x2="150" y2="106"/></g><line x1="30" y1="130" x2="155" y2="130" stroke="#2b3a55" stroke-width="2.5"/><line x1="30" y1="130" x2="30" y2="6" stroke="#2b3a55" stroke-width="2.5"/><circle cx="102" cy="58" r="6" fill="#ef5d60"/><text x="110" y="52" font-size="12" font-weight="800" fill="#ef5d60">(3, 3)</text><text x="26" y="144" font-size="11" font-weight="700" fill="#6b7a99">0</text><text x="99" y="144" font-size="11" font-weight="700" fill="#6b7a99">3</text><text x="14" y="62" font-size="11" font-weight="700" fill="#6b7a99">3</text><text x="158" y="134" font-size="12" font-weight="800" fill="#2b3a55">x</text><text x="24" y="12" font-size="12" font-weight="800" fill="#2b3a55">y</text></svg><br>"over 3, up 3" → (3, 3)</div>
-    </div>
-    <div class="memo">💜 Mẹo nhớ: (x, y) — "x trước, y sau" = "sang ngang trước, đi lên sau".</div>
-  </div>
-  <div id="qs-coord"></div>
-</section>
-
-<!-- ============ GAMES ============ -->
 <section class="topic" id="topic-games">
-  <div class="topic-head"><h2>🎮 Geometry Games!</h2><div class="sub">Chơi game kiếm thêm điểm! Điểm game cộng thẳng vào Score ⭐</div></div>
-
-  <div class="game-card">
-    <h3>🃏 Shape Match</h3>
-    <div class="gdesc">Lật 2 thẻ để ghép hình với tên của nó. Ghép đủ 6 cặp để +30 ⭐!<br>Flip two cards — match each shape with its name!</div>
-    <div class="game-stat">Pairs: <span id="memPairs">0</span>/6 &nbsp;|&nbsp; Mistakes: <span id="memMiss">0</span></div>
-    <div class="mem-grid" id="memGrid"></div>
-    <button class="gbtn purple" id="memNew">🔄 New Game</button>
-  </div>
-
-  <div class="game-card">
-    <h3>⚡ Angle Dash</h3>
-    <div class="gdesc">45 giây — nhìn góc và chọn loại đúng càng nhanh càng tốt! +5 ⭐ mỗi câu đúng.<br>Classify each angle as fast as you can!</div>
-    <div class="game-stat">⏱ <span id="adTime">45</span>s &nbsp;|&nbsp; Correct: <span id="adScore">0</span></div>
-    <div class="game-play" id="adArea"><button class="gbtn" id="adStart">▶ Start!</button></div>
-  </div>
-
-  <div class="game-card">
-    <h3>🧊 Cube Counter</h3>
-    <div class="gdesc">45 giây — tính nhanh thể tích V = l × w × h. +5 ⭐ mỗi câu đúng.<br>Find the volume of each box before time runs out!</div>
-    <div class="game-stat">⏱ <span id="ccTime">45</span>s &nbsp;|&nbsp; Correct: <span id="ccScore">0</span></div>
-    <div class="game-play" id="ccArea"><button class="gbtn" id="ccStart">▶ Start!</button></div>
-  </div>
+  <div class="topic-head"><h2>🎮 Games</h2><div class="sub">Chơi game kiếm thêm điểm! Điểm game cộng thẳng vào Score ⭐</div></div>
+  <div id="gamesWrap"></div>
 </section>
 
-<!-- ============ RESULTS & LEADERBOARD ============ -->
 <section class="topic" id="topic-board">
   <div class="topic-head"><h2>🏆 Kết quả &amp; Bảng xếp hạng</h2><div class="sub">Results &amp; Leaderboard</div></div>
-  <div id="resultArea"><div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả, lời giải chi tiết và lưu vào bảng xếp hạng nhé!<br>🎲 <b>Mỗi lần tải lại trang là một ĐỀ MỚI</b> — số liệu và đáp án thay đổi ngẫu nhiên!</div></div>
+  <div id="resultArea"><div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả, lời giải chi tiết và lưu vào bảng xếp hạng nhé!</div></div>
   <h3 style="color:var(--navy);margin:18px 0 10px">🥇 Bảng xếp hạng (trên thiết bị này)</h3>
   <div id="boardWrap"></div>
   <div id="reviewSection" style="display:none">
@@ -378,238 +266,6 @@ grid34:'<svg width="190" height="180" viewBox="0 0 190 180"><g stroke="#cfe3f7" 
 gridRect:'<svg width="190" height="180" viewBox="0 0 190 180"><g stroke="#cfe3f7" stroke-width="1.5"><line x1="30" y1="150" x2="30" y2="40"/><line x1="52" y1="150" x2="52" y2="40"/><line x1="74" y1="150" x2="74" y2="40"/><line x1="96" y1="150" x2="96" y2="40"/><line x1="118" y1="150" x2="118" y2="40"/><line x1="140" y1="150" x2="140" y2="40"/><line x1="30" y1="40" x2="140" y2="40"/><line x1="30" y1="62" x2="140" y2="62"/><line x1="30" y1="84" x2="140" y2="84"/><line x1="30" y1="106" x2="140" y2="106"/><line x1="30" y1="128" x2="140" y2="128"/></g><line x1="30" y1="150" x2="148" y2="150" stroke="#2b3a55" stroke-width="2.5"/><line x1="30" y1="150" x2="30" y2="32" stroke="#2b3a55" stroke-width="2.5"/><polygon points="52,128 140,128 140,62 52,62" fill="rgba(46,184,114,.12)" stroke="#2eb872" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="52" cy="128" r="5.5" fill="#2f7fd1"/><circle cx="140" cy="128" r="5.5" fill="#2f7fd1"/><circle cx="140" cy="62" r="5.5" fill="#2f7fd1"/><circle cx="52" cy="62" r="7" fill="none" stroke="#ef5d60" stroke-width="2.5" stroke-dasharray="4 3"/><text x="40" y="143" font-size="11" font-weight="800" fill="#2f7fd1">(1,1)</text><text x="118" y="143" font-size="11" font-weight="800" fill="#2f7fd1">(5,1)</text><text x="118" y="54" font-size="11" font-weight="800" fill="#2f7fd1">(5,4)</text><text x="42" y="54" font-size="14" font-weight="800" fill="#ef5d60">?</text><text x="26" y="165" font-size="11" font-weight="700" fill="#6b7a99">0</text><text x="152" y="154" font-size="13" font-weight="800" fill="#2b3a55">x</text><text x="24" y="30" font-size="13" font-weight="800" fill="#2b3a55">y</text></svg>'
 };
 
-/* ================= QUESTIONS (bộ mẫu cũ - không dùng, giữ tham khảo) ================= */
-const QS0 = [
-/* ---- LINES & ANGLES ---- */
-{t:'angles',d:1,g:'G4',svg:FIG.ray,
- q:'Look at the figure. What is it called?', vn:'Hình bên gọi là gì?',
- opts:['Line / Đường thẳng','Line segment / Đoạn thẳng','Ray / Tia','Angle / Góc'],a:2,
- vocab:'ray = tia • endpoint = điểm gốc • arrow = mũi tên (đi mãi không dừng)',
- why:'It has ONE endpoint (B) and an arrow on the other side → it starts at B and goes on forever in one direction. That is a ray. (Có 1 điểm gốc và 1 mũi tên → là tia.)',
- how:'Viết: "The figure has one endpoint and goes on forever in one direction, so it is a ray BA." — Nêu dấu hiệu (1 điểm gốc + 1 mũi tên) rồi kết luận.'},
-{t:'angles',d:1,g:'G4',svg:FIG.acute45,
- q:'This angle measures about 45°. What kind of angle is it?', vn:'Góc này khoảng 45°. Đây là góc gì?',
- opts:['Right angle / Góc vuông','Acute angle / Góc nhọn','Obtuse angle / Góc tù','Straight angle / Góc bẹt'],a:1,
- vocab:'acute angle = góc nhọn • measure = số đo • less than = nhỏ hơn',
- why:'45° is less than 90°, and any angle smaller than a right angle is acute. (45° < 90° → góc nhọn.)',
- how:'Viết: "45° < 90°, so it is an acute angle." — So sánh số đo với 90° rồi kết luận.'},
-{t:'angles',d:1,g:'G4',svg:FIG.parallel,
- q:'These two lines will NEVER meet, no matter how far they go. They are…', vn:'Hai đường này kéo dài mãi cũng không bao giờ cắt nhau. Chúng là…',
- opts:['Parallel lines / Song song','Perpendicular lines / Vuông góc','Intersecting lines / Cắt nhau','Rays / Hai tia'],a:0,
- vocab:'parallel = song song • perpendicular = vuông góc • intersect = cắt nhau',
- why:'Lines that stay the same distance apart and never cross are parallel. (Luôn cách đều nhau, không bao giờ cắt → song song.)',
- how:'Viết: "The lines never intersect, so they are parallel lines." Ký hiệu: AB ∥ CD.'},
-{t:'angles',d:2,g:'G4',svg:null,
- q:'An angle measures 125°. What kind of angle is it?', vn:'Một góc có số đo 125°. Đó là góc gì?',
- opts:['Right / Vuông','Acute / Nhọn','Obtuse / Tù','Straight / Bẹt'],a:2,
- vocab:'obtuse angle = góc tù • between = nằm giữa • greater than = lớn hơn',
- why:'125° is greater than 90° but less than 180° → obtuse. (90° < 125° < 180° → góc tù.)',
- how:'Viết: "90° < 125° < 180°, so the angle is obtuse." — Luôn kẹp số đo giữa 90° và 180° để chứng minh.'},
-{t:'angles',d:2,g:'G4',svg:FIG.split,
- q:'Ray BD splits angle ABC. If ∠ABD = 35° and ∠DBC = 55°, what is the whole angle ABC?', vn:'Tia BD chia góc ABC. Biết ∠ABD = 35° và ∠DBC = 55°, góc ABC bằng bao nhiêu?',
- opts:['80°','90°','100°','120°'],a:1,
- vocab:'whole angle = góc lớn (toàn phần) • part = phần • add = cộng',
- why:'Angle measures are additive: the whole angle = sum of its parts. 35° + 55° = 90°. (Góc lớn = tổng các góc nhỏ.)',
- how:'Viết phép tính: ∠ABC = ∠ABD + ∠DBC = 35° + 55° = 90°. Answer: ∠ABC = 90° (a right angle).'},
-{t:'angles',d:3,g:'G4',svg:FIG.clock,
- q:'At 3 o\'clock, the two hands of the clock make what kind of angle?', vn:'Lúc 3 giờ đúng, hai kim đồng hồ tạo thành góc gì?',
- opts:['Right angle 90° / Góc vuông','Acute angle / Góc nhọn','Obtuse angle / Góc tù','Straight angle 180° / Góc bẹt'],a:0,
- vocab:'clock hands = kim đồng hồ • quarter turn = một phần tư vòng',
- why:'From 12 to 3 is a quarter of a full turn: 360° ÷ 4 = 90° → right angle. (1/4 vòng = 90°.)',
- how:'Viết: "From 12 to 3 = ¼ turn. 360° ÷ 4 = 90°, so the hands make a right angle."'},
-
-/* ---- TRIANGLES ---- */
-{t:'tri',d:1,g:'G4',svg:FIG.equi,
- q:'All three sides of this triangle are equal (see the tick marks). What kind of triangle is it?', vn:'Ba cạnh tam giác bằng nhau (xem dấu gạch). Đây là tam giác gì?',
- opts:['Scalene / Thường','Isosceles / Cân','Equilateral / Đều','Right / Vuông'],a:2,
- vocab:'equilateral = (tam giác) đều • tick marks = dấu gạch (cạnh bằng nhau) • equal = bằng nhau',
- why:'"Equi-lateral" means equal sides — all 3 sides equal → equilateral. Each angle is also 60°. (3 cạnh bằng nhau → tam giác đều.)',
- how:'Viết: "The triangle has 3 equal sides, so it is an equilateral triangle." Nêu dấu hiệu về cạnh trước khi kết luận.'},
-{t:'tri',d:1,g:'G4',svg:FIG.rightTri,
- q:'This triangle has one 90° angle (see the small square). What kind of triangle is it?', vn:'Tam giác có một góc 90° (ô vuông nhỏ). Đây là tam giác gì?',
- opts:['Acute triangle / Tam giác nhọn','Right triangle / Tam giác vuông','Obtuse triangle / Tam giác tù','Equilateral / Đều'],a:1,
- vocab:'right triangle = tam giác vuông • square corner = góc vuông (ký hiệu ô vuông)',
- why:'A triangle with exactly one right angle (90°) is called a right triangle. (Có 1 góc vuông → tam giác vuông.)',
- how:'Viết: "The triangle has a 90° angle, so it is a right triangle." Ô vuông nhỏ ở góc là ký hiệu góc vuông.'},
-{t:'tri',d:2,g:'G4',svg:FIG.tri9035,
- q:'Two angles of a triangle measure 90° and 35°. What is the third angle?', vn:'Hai góc của tam giác là 90° và 35°. Góc thứ ba bằng bao nhiêu?',
- opts:['45°','55°','65°','75°'],a:1,
- vocab:'sum = tổng • third angle = góc thứ ba • subtract = trừ',
- why:'Angles in a triangle always add to 180°. 180° − (90° + 35°) = 180° − 125° = 55°. (Tổng 3 góc = 180°.)',
- how:'Trình bày: Sum of angles = 180°. Third angle = 180° − 90° − 35° = 55°. Answer: 55°.'},
-{t:'tri',d:2,g:'G5',svg:FIG.iso65,
- q:'An isosceles triangle has two base angles of 65° each. What is the top angle?', vn:'Tam giác cân có hai góc đáy đều bằng 65°. Góc ở đỉnh bằng bao nhiêu?',
- opts:['50°','60°','65°','115°'],a:0,
- vocab:'isosceles = (tam giác) cân • base angles = góc đáy • vertex/top angle = góc ở đỉnh',
- why:'180° − (65° + 65°) = 180° − 130° = 50°. In an isosceles triangle the two base angles are equal. (Hai góc đáy bằng nhau.)',
- how:'Trình bày: Top angle = 180° − (65° + 65°) = 180° − 130° = 50°. Answer: 50°.'},
-{t:'tri',d:2,g:'G5',svg:null,
- q:'True or false: Every equilateral triangle is also an isosceles triangle.', vn:'Đúng hay sai: Mọi tam giác đều cũng là tam giác cân.',
- opts:['True / Đúng','False / Sai'],a:0,
- vocab:'at least = ít nhất • property = tính chất • hierarchy = thứ bậc phân loại',
- why:'Isosceles means AT LEAST 2 equal sides. An equilateral triangle has 3 equal sides — so it certainly has 2! (Đều có 3 cạnh bằng nhau → chắc chắn có 2 cạnh bằng nhau → cũng là cân.)',
- how:'Viết: "An isosceles triangle needs at least 2 equal sides. An equilateral triangle has 3 equal sides, so it is also isosceles. → True."'},
-{t:'tri',d:3,g:'G4',svg:null,
- q:'A garden sign is a triangle with sides 7 cm, 7 cm and 4 cm. What kind of triangle is it?', vn:'Biển báo hình tam giác có các cạnh 7 cm, 7 cm và 4 cm. Đây là tam giác gì?',
- opts:['Equilateral / Đều','Isosceles / Cân','Scalene / Thường','Right / Vuông'],a:1,
- vocab:'sides = các cạnh • exactly = chính xác • perimeter = chu vi',
- why:'Two sides are equal (7 cm = 7 cm) but not all three → isosceles. (Có đúng 2 cạnh bằng nhau → tam giác cân.) Bonus: P = 7+7+4 = 18 cm.',
- how:'Viết: "Sides: 7 cm = 7 cm ≠ 4 cm → two equal sides → isosceles triangle." Có thể tính thêm chu vi: P = 7 + 7 + 4 = 18 cm.'},
-
-/* ---- QUADRILATERALS ---- */
-{t:'quad',d:1,g:'G4',svg:FIG.rhomTick,
- q:'This parallelogram has 4 equal sides but NO right angles. What is it?', vn:'Hình bình hành này có 4 cạnh bằng nhau nhưng KHÔNG có góc vuông. Đó là hình gì?',
- opts:['Square / Hình vuông','Rectangle / Chữ nhật','Rhombus / Hình thoi','Trapezoid / Hình thang'],a:2,
- vocab:'rhombus = hình thoi • equal sides = các cạnh bằng nhau • right angle = góc vuông',
- why:'4 equal sides → rhombus. It is NOT a square because squares also need 4 right angles. (4 cạnh bằng nhau, không có góc vuông → hình thoi.)',
- how:'Viết: "It has 4 equal sides → rhombus. No right angles → not a square." Nêu cả 2 dấu hiệu để loại trừ hình vuông.'},
-{t:'quad',d:1,g:'G4',svg:null,
- q:'Which quadrilateral has 4 equal sides AND 4 right angles?', vn:'Tứ giác nào có 4 cạnh bằng nhau VÀ 4 góc vuông?',
- opts:['Rectangle / Chữ nhật','Rhombus / Thoi','Square / Vuông','Trapezoid / Thang'],a:2,
- vocab:'both = cả hai • square = hình vuông • AND = và (cần cả 2 điều kiện)',
- why:'Only the square has BOTH properties. A rectangle has 4 right angles but sides not all equal; a rhombus has 4 equal sides but angles not all 90°. (Chỉ hình vuông có cả hai.)',
- how:'Lập bảng 2 dấu hiệu: cạnh bằng nhau ✓/✗ và góc vuông ✓/✗ cho từng hình → chỉ Square được ✓✓.'},
-{t:'quad',d:2,g:'G4',svg:null,
- q:'A rectangle ALWAYS has…', vn:'Hình chữ nhật LUÔN LUÔN có…',
- opts:['4 equal sides / 4 cạnh bằng nhau','4 right angles / 4 góc vuông','Exactly 1 pair of parallel sides / đúng 1 cặp song song','5 vertices / 5 đỉnh'],a:1,
- vocab:'always = luôn luôn • opposite sides = các cạnh đối • vertices = các đỉnh',
- why:'The definition of a rectangle: a parallelogram with 4 right angles. Only OPPOSITE sides must be equal, not all 4. (Định nghĩa HCN: 4 góc vuông; chỉ các cạnh đối bằng nhau.)',
- how:'Viết: "A rectangle is a parallelogram with 4 right angles." Khi gặp từ ALWAYS, kiểm tra tính chất đó có đúng với MỌI hình chữ nhật không.'},
-{t:'quad',d:2,g:'G5',svg:null,
- q:'True or false: Every square is a rectangle.', vn:'Đúng hay sai: Mọi hình vuông đều là hình chữ nhật.',
- opts:['True / Đúng','False / Sai'],a:0,
- vocab:'definition = định nghĩa • special = đặc biệt • category = nhóm/loại',
- why:'A rectangle = parallelogram with 4 right angles. A square has 4 right angles → it fits the definition. A square is just a special rectangle with equal sides. (Hình vuông là HCN đặc biệt.)',
- how:'Viết: "A square has 4 right angles and opposite sides parallel, so it fits the definition of a rectangle. → True."'},
-{t:'quad',d:2,g:'G5',svg:null,
- q:'Which statement is NOT always true for a parallelogram?', vn:'Phát biểu nào KHÔNG phải lúc nào cũng đúng với hình bình hành?',
- opts:['Opposite sides are parallel / Cạnh đối song song','Opposite sides are equal / Cạnh đối bằng nhau','Opposite angles are equal / Góc đối bằng nhau','It has 4 right angles / Có 4 góc vuông'],a:3,
- vocab:'statement = phát biểu • NOT always true = không phải lúc nào cũng đúng',
- why:'Only rectangles (and squares) have 4 right angles. A "leaning" parallelogram has no right angles at all. (Hình bình hành nghiêng không có góc vuông.)',
- how:'Vẽ một hình bình hành nghiêng làm phản ví dụ (counterexample) → chứng minh phát biểu D không luôn đúng.'},
-{t:'quad',d:3,g:'G5',svg:null,
- q:'Three angles of a quadrilateral measure 90°, 90° and 120°. What is the fourth angle?', vn:'Ba góc của một tứ giác là 90°, 90° và 120°. Góc thứ tư bằng bao nhiêu?',
- opts:['50°','60°','70°','90°'],a:1,
- vocab:'quadrilateral = tứ giác • sum of angles = tổng các góc • fourth = thứ tư',
- why:'Angles of any quadrilateral add to 360°. 360° − (90° + 90° + 120°) = 360° − 300° = 60°. (Tổng 4 góc của tứ giác = 360°.)',
- how:'Trình bày: Sum = 360°. Fourth angle = 360° − (90° + 90° + 120°) = 360° − 300° = 60°. Answer: 60°.'},
-
-/* ---- PERIMETER & AREA ---- */
-{t:'area',d:2,g:'G4',svg:FIG.rect85,
- q:'Find the PERIMETER of this rectangle (8 cm by 5 cm).', vn:'Tính CHU VI hình chữ nhật 8 cm × 5 cm.',
- opts:['13 cm','26 cm','40 cm','21 cm'],a:1,
- vocab:'perimeter = chu vi • distance around = độ dài đường bao quanh • length/width = chiều dài/chiều rộng',
- why:'P = 2 × (l + w) = 2 × (8 + 5) = 2 × 13 = 26 cm. Careful: 40 is the AREA, not the perimeter! (40 là diện tích — bẫy đấy!)',
- how:'Trình bày: P = 2 × (l + w) = 2 × (8 + 5) = 2 × 13 = 26 cm. Answer: 26 cm. Luôn viết công thức trước, thay số sau.'},
-{t:'area',d:2,g:'G4',svg:FIG.rect74,
- q:'Find the AREA of this rectangle (7 cm by 4 cm).', vn:'Tính DIỆN TÍCH hình chữ nhật 7 cm × 4 cm.',
- opts:['22 cm²','28 cm²','11 cm²','14 cm²'],a:1,
- vocab:'area = diện tích • square centimeters (cm²) = xăng-ti-mét vuông • multiply = nhân',
- why:'A = l × w = 7 × 4 = 28 cm². Area is measured in SQUARE units (cm²). (Diện tích = dài × rộng, đơn vị vuông.)',
- how:'Trình bày: A = l × w = 7 × 4 = 28 cm². Answer: 28 cm². Nhớ viết đơn vị cm² (có số mũ 2).'},
-{t:'area',d:2,g:'G4',svg:null,
- q:'A square has a perimeter of 36 cm. How long is each side?', vn:'Hình vuông có chu vi 36 cm. Mỗi cạnh dài bao nhiêu?',
- opts:['6 cm','8 cm','9 cm','12 cm'],a:2,
- vocab:'square = hình vuông • each side = mỗi cạnh • divide = chia',
- why:'A square has 4 equal sides, so side = P ÷ 4 = 36 ÷ 4 = 9 cm. (Cạnh = chu vi ÷ 4.)',
- how:'Trình bày: Side = P ÷ 4 = 36 ÷ 4 = 9 cm. Answer: each side is 9 cm. Thử lại: 9 × 4 = 36 ✓.'},
-{t:'area',d:3,g:'G4',svg:FIG.lshape,
- q:'Find the area of this L-shaped playground.', vn:'Tính diện tích sân chơi hình chữ L.',
- opts:['46 m²','52 m²','64 m²','70 m²'],a:1,
- vocab:'L-shape = hình chữ L • split/decompose = chia nhỏ • rectilinear figure = hình ghép từ HCN',
- why:'Split into 2 rectangles: bottom 10 × 4 = 40 m², top 4 × 3 = 12 m². Total = 40 + 12 = 52 m². (Chia thành 2 HCN rồi cộng.)',
- how:'Trình bày: Chia hình theo đường gạch đứt. A₁ = 10 × 4 = 40 m²; A₂ = 4 × 3 = 12 m²; A = A₁ + A₂ = 52 m². Answer: 52 m².'},
-{t:'area',d:2,g:'G5',svg:null,
- q:'A rectangle is 4 m long and 2½ m wide. What is its area?', vn:'Hình chữ nhật dài 4 m, rộng 2½ m. Diện tích là bao nhiêu?',
- opts:['8 m²','9 m²','10 m²','12 m²'],a:2,
- vocab:'mixed number = hỗn số (2½) • wide = rộng • half = một nửa',
- why:'A = 4 × 2½ = 4 × 2 + 4 × ½ = 8 + 2 = 10 m². (Nhân với hỗn số: tách phần nguyên và phân số.)',
- how:'Trình bày: A = 4 × 2½ = (4 × 2) + (4 × ½) = 8 + 2 = 10 m². Answer: 10 m².'},
-{t:'area',d:3,g:'G4',svg:null,
- q:'Mr Vu wants to put a fence around his 12 m × 7 m garden. How many meters of fence does he need?', vn:'Thầy Vũ muốn rào quanh khu vườn 12 m × 7 m. Cần bao nhiêu mét rào?',
- opts:['19 m','38 m','84 m','26 m'],a:1,
- vocab:'fence = hàng rào • around = bao quanh (→ chu vi!) • need = cần',
- why:'"Fence around" = perimeter! P = 2 × (12 + 7) = 2 × 19 = 38 m. 84 is the area — wrong meaning. (Rào quanh → tính chu vi, không phải diện tích.)',
- how:'Bước 1: từ khóa "around" → chu vi. Bước 2: P = 2 × (12 + 7) = 38 m. Answer: He needs 38 m of fence.'},
-
-/* ---- VOLUME ---- */
-{t:'vol',d:1,g:'G5',svg:FIG.prism,
- q:'How many unit cubes make up this prism (3 × 2 × 2)?', vn:'Hình hộp này (3 × 2 × 2) gồm bao nhiêu khối lập phương đơn vị?',
- opts:['10 cubes','12 cubes','14 cubes','7 cubes'],a:1,
- vocab:'unit cube = khối lập phương đơn vị • layer = lớp • prism = hình hộp/lăng trụ',
- why:'Each layer has 3 × 2 = 6 cubes. There are 2 layers: 6 × 2 = 12 cubes. (Mỗi lớp 6 khối, 2 lớp → 12 khối.)',
- how:'Trình bày: Cubes in 1 layer = 3 × 2 = 6. Number of layers = 2. Total = 6 × 2 = 12 unit cubes.'},
-{t:'vol',d:2,g:'G5',svg:null,
- q:'Find the volume of a box: length 5 cm, width 3 cm, height 4 cm.', vn:'Tính thể tích hộp: dài 5 cm, rộng 3 cm, cao 4 cm.',
- opts:['12 cm³','60 cm³','23 cm³','35 cm³'],a:1,
- vocab:'volume = thể tích • cubic centimeters (cm³) = xăng-ti-mét khối • height = chiều cao',
- why:'V = l × w × h = 5 × 3 × 4 = 60 cm³. Volume uses CUBIC units (cm³). (Thể tích = dài × rộng × cao.)',
- how:'Trình bày: V = l × w × h = 5 × 3 × 4 = 60 cm³. Answer: 60 cm³. Nhớ đơn vị khối (mũ 3).'},
-{t:'vol',d:2,g:'G5',svg:null,
- q:'The base of a prism has an area of 24 cm². Its height is 5 cm. Volume = ?', vn:'Đáy hình hộp có diện tích 24 cm², chiều cao 5 cm. Thể tích bằng bao nhiêu?',
- opts:['29 cm³','120 cm³','100 cm³','96 cm³'],a:1,
- vocab:'base = mặt đáy • B = diện tích đáy • formula = công thức',
- why:'Second volume formula: V = B × h = 24 × 5 = 120 cm³. (V = diện tích đáy × chiều cao.)',
- how:'Trình bày: V = B × h = 24 × 5 = 120 cm³. Answer: 120 cm³. Dùng công thức này khi đề cho sẵn diện tích đáy.'},
-{t:'vol',d:2,g:'G5',svg:null,
- q:'A box has volume 72 cm³. Its length is 6 cm and width is 3 cm. What is its height?', vn:'Hộp có thể tích 72 cm³, dài 6 cm, rộng 3 cm. Chiều cao là bao nhiêu?',
- opts:['4 cm','6 cm','8 cm','3 cm'],a:0,
- vocab:'missing dimension = kích thước còn thiếu • divide = chia • check = thử lại',
- why:'h = V ÷ (l × w) = 72 ÷ (6 × 3) = 72 ÷ 18 = 4 cm. Check: 6 × 3 × 4 = 72 ✓. (Lấy thể tích chia diện tích đáy.)',
- how:'Trình bày: l × w = 6 × 3 = 18. h = V ÷ 18 = 72 ÷ 18 = 4 cm. Thử lại: 6 × 3 × 4 = 72 ✓. Answer: 4 cm.'},
-{t:'vol',d:3,g:'G5',svg:null,
- q:'A juice box is 8 cm long, 4 cm wide and 10 cm tall. How much space does it take up?', vn:'Hộp sữa dài 8 cm, rộng 4 cm, cao 10 cm. Hộp chiếm bao nhiêu không gian?',
- opts:['320 cm³','220 cm³','80 cm³','32 cm³'],a:0,
- vocab:'space = không gian (→ thể tích) • take up = chiếm • tall = cao',
- why:'"Space it takes up" = volume. V = 8 × 4 × 10 = 320 cm³. (Từ khóa "không gian chiếm" → thể tích.)',
- how:'Bước 1: "space" → thể tích. Bước 2: V = 8 × 4 × 10 = 320 cm³. Answer: The juice box takes up 320 cm³.'},
-{t:'vol',d:3,g:'G5',svg:null,
- q:'Which unit is best for measuring the volume of a classroom?', vn:'Đơn vị nào phù hợp nhất để đo thể tích một phòng học?',
- opts:['Centimeters (cm)','Square meters (m²)','Cubic meters (m³)','Kilometers (km)'],a:2,
- vocab:'unit = đơn vị • cubic meter = mét khối • measure = đo',
- why:'Volume needs CUBIC units. A classroom is big → cubic meters (m³). cm đo độ dài, m² đo diện tích. (Thể tích phòng → m³.)',
- how:'Quy tắc chọn đơn vị: độ dài → m; diện tích → m²; thể tích → m³. Viết: "Volume of a room is measured in cubic meters (m³)."'},
-
-/* ---- COORDINATES ---- */
-{t:'coord',d:1,g:'G5',svg:FIG.grid34,
- q:'What ordered pair names point P?', vn:'Điểm P có tọa độ là gì?',
- opts:['(4, 3)','(3, 4)','(3, 3)','(4, 4)'],a:1,
- vocab:'ordered pair = cặp tọa độ • over = sang ngang • up = đi lên',
- why:'From 0: go RIGHT 3, then UP 4 → (3, 4). Order matters: x first, y second! ((4,3) là sai vì đảo thứ tự.)',
- how:'Trình bày: "Start at 0. Move right 3 (x = 3), then up 4 (y = 4). P = (3, 4)." Luôn viết x trước, y sau.'},
-{t:'coord',d:1,g:'G5',svg:null,
- q:'The horizontal axis (going left–right) is called the…', vn:'Trục nằm ngang (trái–phải) gọi là…',
- opts:['x-axis / trục x','y-axis / trục y','origin / gốc tọa độ','ordered pair / cặp tọa độ'],a:0,
- vocab:'horizontal = nằm ngang • vertical = thẳng đứng • axis (axes) = trục',
- why:'The x-axis is horizontal; the y-axis is vertical; they meet at the origin (0,0). (Trục x nằm ngang, trục y thẳng đứng.)',
- how:'Mẹo nhớ: chữ "y" có nét sổ dọc dài → y là trục DỌC; còn lại x là trục NGANG.'},
-{t:'coord',d:2,g:'G5',svg:null,
- q:'Start at (2, 1). Move 3 units right and 2 units up. Where are you now?', vn:'Bắt đầu từ (2, 1). Đi sang phải 3 ô và lên trên 2 ô. Bạn đang ở đâu?',
- opts:['(5, 3)','(4, 3)','(5, 2)','(3, 5)'],a:0,
- vocab:'move right = đi sang phải (+x) • move up = đi lên (+y) • units = đơn vị/ô',
- why:'Right 3: x = 2 + 3 = 5. Up 2: y = 1 + 2 = 3. New point: (5, 3). (Sang phải cộng vào x, đi lên cộng vào y.)',
- how:'Trình bày: x = 2 + 3 = 5; y = 1 + 2 = 3 → (5, 3). Viết phép tính riêng cho từng tọa độ.'},
-{t:'coord',d:2,g:'G5',svg:null,
- q:'The point (0, 6) lies…', vn:'Điểm (0, 6) nằm ở đâu?',
- opts:['On the x-axis / Trên trục x','On the y-axis / Trên trục y','At the origin / Tại gốc tọa độ','Outside the grid / Ngoài lưới'],a:1,
- vocab:'lies on = nằm trên • origin = gốc tọa độ (0,0)',
- why:'x = 0 means you do not move right at all — you stay on the vertical y-axis and go up 6. (x = 0 → điểm nằm trên trục y.)',
- how:'Quy tắc: x = 0 → điểm trên trục y; y = 0 → điểm trên trục x. Viết: "(0, 6) has x = 0, so it lies on the y-axis."'},
-{t:'coord',d:3,g:'G5',svg:FIG.gridRect,
- q:'Three vertices of a rectangle are (1, 1), (5, 1) and (5, 4). What is the fourth vertex?', vn:'Ba đỉnh của hình chữ nhật là (1, 1), (5, 1) và (5, 4). Đỉnh thứ tư là gì?',
- opts:['(1, 4)','(4, 1)','(1, 5)','(4, 4)'],a:0,
- vocab:'vertex (vertices) = đỉnh • fourth = thứ tư • line up = thẳng hàng',
- why:'The fourth corner must line up: same x as (1, 1) → x = 1; same y as (5, 4) → y = 4. So (1, 4). (Đỉnh thứ tư thẳng cột với (1,1) và thẳng hàng với (5,4).)',
- how:'Trình bày: "It must share x = 1 with (1, 1) and y = 4 with (5, 4) → fourth vertex = (1, 4)." Vẽ phác lưới để kiểm tra.'},
-{t:'coord',d:3,g:'G5',svg:null,
- q:'How far apart are the points (2, 3) and (7, 3)?', vn:'Hai điểm (2, 3) và (7, 3) cách nhau bao xa?',
- opts:['5 units','4 units','9 units','10 units'],a:0,
- vocab:'how far apart = cách nhau bao xa • distance = khoảng cách • same y = cùng tung độ',
- why:'Both points have y = 3 → they are on the same horizontal line. Distance = 7 − 2 = 5 units. (Cùng y → lấy hiệu hai hoành độ.)',
- how:'Trình bày: "Same y-coordinate → horizontal distance = 7 − 2 = 5 units." Cùng hàng ngang thì trừ x; cùng cột dọc thì trừ y.'}
-];
-
-/* ============ NEW: RANDOM EXAM — mỗi lần tải trang = 1 đề mới ============ */
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
 function shuf(opts,a){const idx=opts.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}return{opts:idx.map(i=>opts[i]),a:idx.indexOf(a)};}
@@ -788,10 +444,8 @@ function(){const a=ri(0,4);const d=ri(2,5);const b=a+d;const k=ri(1,8);const mod
  return Q('coord',3,'G5',null,'How far apart are the points '+p1+' and '+p2+'?','Hai điểm '+p1+' và '+p2+' cách nhau bao xa?','how far apart = cách nhau bao xa • distance = khoảng cách • same = giống nhau',
  'Both points have the same '+same+'-coordinate → they are on one straight line. Distance = '+b+' − '+a+' = '+d+' units. (Cùng '+same+' → lấy hiệu hai tọa độ '+sub+'.)','Trình bày: "Same '+same+'-coordinate → distance = '+b+' − '+a+' = '+d+' units." Cùng hàng thì trừ hoành độ, cùng cột thì trừ tung độ.',numOpts(d,[b,a+b,d+1],' units'));}
 ];
-const QS = GENS.map(f=>f());
-
+const GEO_GENS = GENS;
 const DANG_LABEL = {1:'🔍 Dạng 1 · Identify / Nhận biết', 2:'🧮 Dạng 2 · Calculate / Tính toán', 3:'📖 Dạng 3 · Word problems / Toán đố'};
-const TOPIC_NAME = {angles:'Lines & Angles', tri:'Triangles', quad:'Quadrilaterals', area:'Perimeter & Area', vol:'Volume', coord:'Coordinates'};
 
 /* memory game shapes */
 const MEM_SHAPES = [
@@ -804,45 +458,342 @@ const MEM_SHAPES = [
 ];
 </script>
 <script>
+/* ============================================================
+   UNITS REGISTRY — lý thuyết + bộ sinh câu hỏi cho từng unit
+   ============================================================ */
+
+/* ---------- helpers cho đại số ---------- */
+function pvChart(num){const s=String(num);const names=['Triệu/M','Trăm nghìn/HTh','Chục nghìn/TTh','Nghìn/Th','Trăm/H','Chục/T','Đơn vị/O'];const start=names.length-s.length;let h='',r='';for(let i=0;i<s.length;i++){h+='<th>'+names[start+i]+'</th>';r+='<td>'+s[i]+'</td>';}return '<table class="pv-table"><tr>'+h+'</tr><tr>'+r+'</tr></table>';}
+function fracBarHTML(n,d,col){col=col||'#4aa3f0';let c='';for(let i=0;i<d;i++)c+='<span style="background:'+(i<n?col:'#fff')+'"></span>';return '<span class="fbar">'+c+'</span>';}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ---------- THEORY HTML ---------- */
+const THEORY = {};
+
+THEORY.geometry = `
+<div class="lesson"><h3>📏 1. Lines &amp; Angles / Đường thẳng &amp; Góc</h3>
+<ul><li><b>Line segment</b> — 2 endpoints. <span class="vn">Đoạn thẳng — 2 điểm đầu mút.</span></li>
+<li><b>Ray</b> — 1 endpoint, goes forever one way. <span class="vn">Tia — 1 gốc, kéo dài 1 phía.</span></li>
+<li><b>Line</b> — forever both ways. <span class="vn">Đường thẳng — kéo dài 2 phía.</span></li>
+<li><b>Right</b> = 90° • <b>Acute</b> &lt; 90° • <b>Obtuse</b> 90°–180° • <b>Straight</b> = 180°. <span class="vn">Vuông • nhọn • tù • bẹt.</span></li>
+<li><b>Parallel</b> ∥ never meet • <b>Perpendicular</b> ⊥ cross at 90°. <span class="vn">Song song • vuông góc.</span></li></ul>
+<div class="figs">
+<div class="fig"><svg width="100" height="30" viewBox="0 0 100 30"><line x1="10" y1="15" x2="90" y2="15" stroke="#2f7fd1" stroke-width="3"/><circle cx="10" cy="15" r="4" fill="#2f7fd1"/><circle cx="90" cy="15" r="4" fill="#2f7fd1"/></svg><br>segment / đoạn thẳng</div>
+<div class="fig"><svg width="100" height="30" viewBox="0 0 100 30"><line x1="10" y1="15" x2="84" y2="15" stroke="#19a7a0" stroke-width="3"/><circle cx="10" cy="15" r="4" fill="#19a7a0"/><polygon points="82,9 96,15 82,21" fill="#19a7a0"/></svg><br>ray / tia</div>
+<div class="fig"><svg width="84" height="64" viewBox="0 0 84 64"><line x1="10" y1="54" x2="76" y2="54" stroke="#ff8c42" stroke-width="3"/><line x1="10" y1="54" x2="10" y2="6" stroke="#ff8c42" stroke-width="3"/><rect x="10" y="40" width="14" height="14" fill="none" stroke="#ff8c42" stroke-width="2"/></svg><br>right 90° / vuông</div>
+<div class="fig"><svg width="84" height="64" viewBox="0 0 84 64"><line x1="8" y1="54" x2="78" y2="54" stroke="#2eb872" stroke-width="3"/><line x1="8" y1="54" x2="58" y2="12" stroke="#2eb872" stroke-width="3"/></svg><br>acute / nhọn</div></div>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> An angle of <b>120°</b> is between 90° and 180° → <b>obtuse</b>. <span class="vn">Góc 120° nằm giữa 90° và 180° → góc tù.</span></div></div>
+
+<div class="lesson"><h3>🔺 2. Triangles / Tam giác</h3>
+<ul><li>By sides: <b>equilateral</b> (3 bằng) • <b>isosceles</b> (≥2 bằng) • <b>scalene</b> (không bằng). <span class="vn">Đều • cân • thường.</span></li>
+<li>By angles: <b>right</b> • <b>acute</b> • <b>obtuse</b>. <span class="vn">Vuông • nhọn • tù.</span></li>
+<li>3 angles add to <b>180°</b>. <span class="vn">Tổng 3 góc = 180°.</span></li></ul>
+<div class="figs"><div class="fig"><svg width="80" height="68" viewBox="0 0 80 68"><polygon points="40,8 8,60 72,60" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/></svg><br>equilateral / đều</div>
+<div class="fig"><svg width="80" height="68" viewBox="0 0 80 68"><polygon points="12,10 12,60 70,60" fill="#fff0e2" stroke="#ff8c42" stroke-width="3"/><rect x="12" y="48" width="12" height="12" fill="none" stroke="#ff8c42" stroke-width="2"/></svg><br>right / vuông</div></div>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Two angles are 90° and 35°. Third = 180° − 90° − 35° = <b>55°</b>. <span class="vn">Hai góc 90° và 35° → góc còn lại = 55°.</span></div></div>
+
+<div class="lesson"><h3>⬜ 3. Quadrilaterals / Tứ giác</h3>
+<ul><li><b>Quadrilateral</b> = 4 sides, angles add to <b>360°</b>. <span class="vn">Tứ giác — tổng góc 360°.</span></li>
+<li><b>Trapezoid</b> ≥1 cặp song song • <b>Parallelogram</b> 2 cặp song song • <b>Rectangle</b> 4 góc vuông • <b>Rhombus</b> 4 cạnh bằng • <b>Square</b> cả hai.</li></ul>
+<div class="figs"><div class="fig"><svg width="60" height="56" viewBox="0 0 60 56"><rect x="12" y="6" width="40" height="40" fill="#dff0fd" stroke="#2f7fd1" stroke-width="3"/></svg><br>square / vuông</div>
+<div class="fig"><svg width="86" height="56" viewBox="0 0 86 56"><rect x="6" y="12" width="74" height="32" fill="#e6fbf0" stroke="#2eb872" stroke-width="3"/></svg><br>rectangle / chữ nhật</div>
+<div class="fig"><svg width="76" height="60" viewBox="0 0 76 60"><polygon points="38,5 70,30 38,55 6,30" fill="#f4eefe" stroke="#7b5ce0" stroke-width="3"/></svg><br>rhombus / thoi</div></div>
+<div class="ex-box"><span class="extag">Key / Ghi nhớ</span> Every square is a rectangle AND a rhombus. <span class="vn">Hình vuông vừa là hình chữ nhật vừa là hình thoi.</span></div></div>
+
+<div class="lesson"><h3>📐 4. Perimeter &amp; Area / Chu vi &amp; Diện tích</h3>
+<ul><li><b>Perimeter</b> P = 2 × (l + w) — đơn vị cm, m. <span class="vn">Chu vi.</span></li>
+<li><b>Area</b> A = l × w — đơn vị cm², m². <span class="vn">Diện tích.</span></li>
+<li>L-shape: chia thành các hình chữ nhật rồi cộng.</li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Rectangle 8 × 5: P = 2×(8+5) = <b>26 cm</b>; A = 8×5 = <b>40 cm²</b>. <span class="vn">Đừng nhầm chu vi (cm) với diện tích (cm²)!</span></div></div>
+
+<div class="lesson"><h3>🧊 5. Volume / Thể tích</h3>
+<ul><li><b>V = l × w × h</b> = dài × rộng × cao. Đơn vị cm³, m³.</li><li><b>V = B × h</b> (B = diện tích đáy).</li></ul>
+<div class="figs"><div class="fig"><svg width="120" height="90" viewBox="0 0 120 90"><polygon points="18,40 78,40 100,24 40,24" fill="#cfe9fc" stroke="#2f7fd1" stroke-width="2"/><polygon points="78,40 100,24 100,66 78,82" fill="#a8d4f5" stroke="#2f7fd1" stroke-width="2"/><rect x="18" y="40" width="60" height="42" fill="#dff0fd" stroke="#2f7fd1" stroke-width="2"/></svg><br>V = l×w×h</div></div>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Box 5 × 3 × 4 → V = <b>60 cm³</b>. <span class="vn">Thể tích = 5×3×4 = 60 cm³.</span></div></div>
+
+<div class="lesson"><h3>🗺️ 6. Coordinate Grid / Lưới tọa độ</h3>
+<ul><li>Ordered pair <b>(x, y)</b>: sang phải x, rồi lên y — "over then up". <span class="vn">x trước, y sau.</span></li>
+<li><b>x-axis</b> ngang • <b>y-axis</b> dọc • <b>origin</b> (0,0).</li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Point at right 3, up 4 → <b>(3, 4)</b>. <span class="vn">Sang phải 3, lên 4 → (3, 4).</span></div></div>`;
+
+THEORY.placevalue = `
+<div class="lesson"><h3>🔢 1. Place Value / Giá trị theo vị trí</h3>
+<ul><li>Each digit's value depends on its <b>place</b>. <span class="vn">Giá trị mỗi chữ số phụ thuộc vào HÀNG của nó.</span></li>
+<li>Places: ones, tens, hundreds, thousands… <span class="vn">đơn vị, chục, trăm, nghìn…</span> Mỗi hàng gấp <b>10 lần</b> hàng bên phải.</li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> In <b>4,752</b> the digit <b>7</b> is in the hundreds place → value = <b>700</b>. <span class="vn">Trong 4 752, chữ số 7 ở hàng trăm → giá trị 700.</span>${pvChart(4752)}</div></div>
+
+<div class="lesson"><h3>➕ 2. Add &amp; Subtract / Cộng &amp; Trừ nhiều chữ số</h3>
+<ul><li>Line up the digits by place value, add/subtract from the <b>right</b>, carry / borrow when needed. <span class="vn">Đặt thẳng cột theo hàng, tính từ phải sang, nhớ / mượn khi cần.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 365 + 247:<br><span class="calc">365 + 247 = <span class="g">612</span></span><br><span class="vn">5+7=12 viết 2 nhớ 1; 6+4+1=11 viết 1 nhớ 1; 3+2+1=6 → 612.</span></div></div>
+
+<div class="lesson"><h3>🔁 3. Rounding &amp; Compare / Làm tròn &amp; So sánh</h3>
+<ul><li><b>Round</b>: look at the next digit — 5 or more rounds up. <span class="vn">Làm tròn: nhìn chữ số liền sau, ≥5 thì làm tròn lên.</span></li>
+<li><b>Compare</b>: so sánh từ hàng cao nhất. Dùng &gt; , &lt; , =.</li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 472 rounded to the nearest 100 → next digit is 7 (≥5) → <b>500</b>. <span class="vn">472 làm tròn đến hàng trăm → 500.</span></div></div>`;
+
+THEORY.fractions = `
+<div class="lesson"><h3>🍕 1. What is a fraction? / Phân số là gì?</h3>
+<ul><li><b>Numerator</b> (top) = parts we have • <b>Denominator</b> (bottom) = total equal parts. <span class="vn">Tử số (trên) • Mẫu số (dưới).</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> ${fracBarHTML(3,4)} = <b>3/4</b> — 3 out of 4 equal parts shaded. <span class="vn">3 trên 4 phần được tô → 3/4.</span></div></div>
+
+<div class="lesson"><h3>🟰 2. Equivalent &amp; Compare / Phân số bằng nhau &amp; So sánh</h3>
+<ul><li><b>Equivalent</b>: nhân (hoặc chia) cả tử và mẫu cho cùng một số. <span class="vn">1/2 = 2/4 = 3/6.</span></li>
+<li>Same denominator → bigger numerator is bigger. <span class="vn">Cùng mẫu, tử lớn hơn thì phân số lớn hơn.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> ${fracBarHTML(1,2,'#2eb872')} = ${fracBarHTML(2,4,'#2eb872')} → <b>1/2 = 2/4</b>. <span class="vn">Nhân tử &amp; mẫu với 2: 1/2 = 2/4.</span></div></div>
+
+<div class="lesson"><h3>➕ 3. Add &amp; Subtract (same denominator) / Cộng &amp; Trừ cùng mẫu</h3>
+<ul><li>Keep the denominator, add or subtract the numerators. <span class="vn">Giữ nguyên mẫu, cộng/trừ tử số.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> <span class="calc">2/5 + 1/5 = <span class="g">3/5</span></span> — 2+1=3, mẫu giữ nguyên 5. <span class="vn">Cộng tử: 2+1=3 → 3/5.</span></div></div>`;
+
+THEORY.decimals = `
+<div class="lesson"><h3>🔟 1. Decimal places / Hàng thập phân</h3>
+<ul><li>After the point: <b>tenths</b> (1/10), <b>hundredths</b> (1/100). <span class="vn">Sau dấu phẩy: phần mười, phần trăm.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> In <b>3.47</b>: 3 = ones, 4 = tenths, 7 = hundredths. <span class="vn">3,47: 3 đơn vị, 4 phần mười, 7 phần trăm.</span> 0.5 = 5/10 = ${fracBarHTML(5,10,'#19a7a0')}</div></div>
+
+<div class="lesson"><h3>⚖️ 2. Compare &amp; Round / So sánh &amp; Làm tròn</h3>
+<ul><li>Compare place by place from the left. <span class="vn">So sánh từng hàng từ trái.</span> 0.6 &gt; 0.59 vì 6 phần mười &gt; 5 phần mười.</li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Round <b>2.36</b> to the nearest tenth → next digit 6 (≥5) → <b>2.4</b>. <span class="vn">2,36 làm tròn đến phần mười → 2,4.</span></div></div>
+
+<div class="lesson"><h3>➕ 3. Add &amp; Subtract / Cộng &amp; Trừ số thập phân</h3>
+<ul><li><b>Line up the decimal points!</b> <span class="vn">Đặt thẳng cột dấu phẩy rồi tính như số tự nhiên.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> <span class="calc">1.5 + 2.3 = <span class="g">3.8</span></span> • <span class="calc">5.0 − 1.4 = <span class="g">3.6</span></span> <span class="vn">Thẳng cột dấu phẩy.</span></div></div>`;
+
+THEORY.muldiv = `
+<div class="lesson"><h3>✖️ 1. Multiplication / Phép nhân</h3>
+<ul><li>Multiplication = repeated addition / equal groups. <span class="vn">Nhân = cộng nhiều lần / các nhóm bằng nhau.</span></li>
+<li><b>Factors × Factor = Product</b>. <span class="vn">Thừa số × thừa số = tích.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 4 × 3 = 4 + 4 + 4 = <b>12</b> (3 nhóm, mỗi nhóm 4). <span class="vn">4 × 3 = 12.</span></div></div>
+
+<div class="lesson"><h3>➗ 2. Division / Phép chia</h3>
+<ul><li><b>Dividend ÷ Divisor = Quotient</b> (số bị chia ÷ số chia = thương). Có thể có <b>remainder / số dư</b>.</li><li>Division undoes multiplication. <span class="vn">Chia là phép ngược của nhân.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 13 ÷ 4 = <b>3 remainder 1</b> (3 × 4 = 12, dư 1). <span class="vn">13 ÷ 4 = 3 dư 1.</span></div></div>
+
+<div class="lesson"><h3>🔢 3. Factors &amp; Multiples / Ước &amp; Bội</h3>
+<ul><li><b>Factor / ước</b>: số chia hết. <b>Multiple / bội</b>: kết quả của bảng cửu chương. <span class="vn">Ước của 12: 1,2,3,4,6,12. Bội của 3: 3,6,9,12…</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Multi-digit: 24 × 3 = (20×3) + (4×3) = 60 + 12 = <b>72</b>. <span class="vn">Tách hàng: 24×3 = 60+12 = 72.</span></div></div>`;
+
+/* ---------- QUESTION GENERATORS cho 4 unit mới ---------- */
+const placeName=['ones / đơn vị','tens / chục','hundreds / trăm','thousands / nghìn','ten-thousands / chục nghìn'];
+const PLACE_GENS=[
+function(){const n=ri(2,9)*1000+ri(0,9)*100+ri(0,9)*10+ri(0,9);const s=String(n);const pos=ri(0,3);const dig=+s[s.length-1-pos];const val=dig*Math.pow(10,pos);
+ return Q('pv',1,'G4',pvChart(n),'In the number '+n.toLocaleString('en-US')+', what is the VALUE of the digit '+dig+' (in the '+placeName[pos].split(' /')[0]+' place)?','Trong số '+n.toLocaleString('en-US')+', chữ số '+dig+' ở hàng "'+placeName[pos].split('/ ')[1]+'" có GIÁ TRỊ bao nhiêu?','place value = giá trị theo vị trí • digit = chữ số • ones/tens/hundreds = đơn vị/chục/trăm',
+ 'The digit '+dig+' is in the '+placeName[pos].split(' /')[0]+' place, so its value = '+dig+' × '+Math.pow(10,pos).toLocaleString('en-US')+' = '+val.toLocaleString('en-US')+'. (Giá trị = chữ số × giá trị hàng.)','Viết: value = '+dig+' × '+Math.pow(10,pos)+' = '+val+'. Đừng nhầm "chữ số" với "giá trị".',numOpts(val,[dig,val*10,dig*Math.pow(10,(pos+1)%4||1)],''));},
+function(){const n=ri(2,9)*1000+ri(0,9)*100+ri(0,9)*10+ri(0,9);const s=String(n);const pos=ri(0,3);const dig=+s[s.length-1-pos];
+ return Q('pv',1,'G4',pvChart(n),'In '+n.toLocaleString('en-US')+', which place is the digit '+dig+' in?','Trong '+n.toLocaleString('en-US')+', chữ số '+dig+' nằm ở hàng nào?','place = hàng • position = vị trí',
+ 'Counting from the right: position '+(pos+1)+' → '+placeName[pos]+'. (Đếm từ phải sang.)','Đếm từ phải: đơn vị → chục → trăm → nghìn. Chữ số '+dig+' ở hàng '+placeName[pos].split('/ ')[1]+'.',shuf([placeName[0],placeName[1],placeName[2],placeName[3]],pos));},
+function(){let a,b;do{a=ri(1000,9999);b=ri(1000,9999);}while(a===b);const big=Math.max(a,b);
+ return Q('pv',1,'G4',null,'Which number is GREATER: '+a.toLocaleString('en-US')+' or '+b.toLocaleString('en-US')+'?','Số nào LỚN HƠN: '+a.toLocaleString('en-US')+' hay '+b.toLocaleString('en-US')+'?','greater = lớn hơn • compare = so sánh • from the left = từ trái sang',
+ 'Compare from the highest place (thousands) to the right. '+big.toLocaleString('en-US')+' is greater. (So sánh từ hàng cao nhất.)','Viết: so sánh hàng nghìn trước; nếu bằng thì xét hàng trăm… → '+big.toLocaleString('en-US')+' lớn hơn.',shuf([a.toLocaleString('en-US'),b.toLocaleString('en-US')],a>b?0:1));},
+function(){const exp=ri(2,9)*1000+ri(1,9)*100+ri(1,9)*10+ri(1,9);const s=String(exp);
+ const correct=(+s[0]*1000)+' + '+(+s[1]*100)+' + '+(+s[2]*10)+' + '+(+s[3]);
+ const wrong=[(+s[0])+' + '+(+s[1])+' + '+(+s[2])+' + '+(+s[3]),(+s[0]*1000)+' + '+(+s[1]*10)+' + '+(+s[2]*100)+' + '+(+s[3]),(+s[0]*100)+' + '+(+s[1]*10)+' + '+(+s[2])+' + '+(+s[3])];
+ return Q('pv',1,'G4',null,'Write '+exp.toLocaleString('en-US')+' in expanded form.','Viết '+exp.toLocaleString('en-US')+' dưới dạng tổng các hàng (expanded form).','expanded form = dạng khai triển • sum = tổng',
+ 'Each digit × its place value: '+correct+'. (Mỗi chữ số nhân giá trị hàng rồi cộng lại.)','Viết: '+exp+' = '+correct+'.',shuf([correct,wrong[0],wrong[1],wrong[2]],0));},
+function(){const a=ri(120,899),b=ri(120,899);const s=a+b;
+ return Q('pv',2,'G4',null,'Calculate: '+a+' + '+b+' = ?','Tính: '+a+' + '+b+' = ?','add = cộng • carry = nhớ • column = cột',
+ 'Add by place from the right, carrying when a column passes 9. '+a+' + '+b+' = '+s+'. (Cộng từ phải, nhớ khi cần.)','Đặt tính dọc, cộng từ hàng đơn vị, nhớ sang hàng sau. Kết quả '+s+'.',numOpts(s,[s+10,s-10,s+100],''));},
+function(){let a,b;do{a=ri(300,950);b=ri(120,a-50);}while(a-b<10);const r=a-b;
+ return Q('pv',2,'G4',null,'Calculate: '+a+' − '+b+' = ?','Tính: '+a+' − '+b+' = ?','subtract = trừ • borrow = mượn (vay) • difference = hiệu',
+ 'Subtract by place from the right, borrowing when needed. '+a+' − '+b+' = '+r+'. (Trừ từ phải, mượn khi cần.)','Đặt tính dọc, trừ từ hàng đơn vị, mượn 1 từ hàng trên khi không đủ. Kết quả '+r+'.',numOpts(r,[r+10,r-10,r+100],''));},
+function(){const base=ri(13,87)*10+ri(1,9);const r=Math.round(base/10)*10;
+ return Q('pv',2,'G4',null,'Round '+base+' to the nearest TEN.','Làm tròn '+base+' đến hàng CHỤC gần nhất.','round = làm tròn • nearest ten = hàng chục gần nhất',
+ 'Look at the ones digit ('+(base%10)+'): '+(base%10>=5?'5 or more → round up':'less than 5 → round down')+' → '+r+'. (Nhìn chữ số hàng đơn vị.)','Quy tắc: chữ số hàng đơn vị ≥5 làm tròn lên, <5 làm tròn xuống → '+r+'.',numOpts(r,[r+10,r-10,base],''));},
+function(){const base=ri(2,9)*100+ri(0,9)*10+ri(0,9);const r=Math.round(base/100)*100;
+ return Q('pv',2,'G5',null,'Round '+base+' to the nearest HUNDRED.','Làm tròn '+base+' đến hàng TRĂM gần nhất.','round = làm tròn • nearest hundred = hàng trăm gần nhất • tens digit = chữ số hàng chục',
+ 'Look at the tens digit ('+Math.floor(base/10)%10+'): '+(Math.floor(base/10)%10>=5?'≥5 → round up':'<5 → round down')+' → '+r+'. (Nhìn chữ số hàng chục.)','Quy tắc: chữ số hàng chục ≥5 làm tròn lên → '+r+'.',numOpts(r,[r+100,r-100,base],''));},
+function(){const price1=ri(15,40),price2=ri(15,40);const total=price1+price2;
+ return Q('pv',3,'G4',null,'A book costs '+price1+',000₫ and a pen costs '+price2+',000₫. How much for both?','Một quyển sách giá '+price1+'.000₫ và một cây bút giá '+price2+'.000₫. Mua cả hai hết bao nhiêu?','total = tổng cộng • altogether = tất cả • cost = giá',
+ 'Add the two prices: '+price1+' + '+price2+' = '+total+' (thousand đồng). (Cộng hai giá.)','Viết: '+price1+' + '+price2+' = '+total+' → '+total+'.000₫.',numOpts(total,[total+5,total-5,Math.abs(price1-price2)],',000₫'));},
+function(){const have=ri(500,900),spend=ri(150,400);const left=have-spend;
+ return Q('pv',3,'G4',null,'Lan has '+have+',000₫. She spends '+spend+',000₫. How much is left?','Lan có '+have+'.000₫. Bạn ấy tiêu '+spend+'.000₫. Còn lại bao nhiêu?','left = còn lại • spend = tiêu • subtract = trừ',
+ 'Subtract: '+have+' − '+spend+' = '+left+' (thousand đồng). (Còn lại = có − tiêu.)','Viết: '+have+' − '+spend+' = '+left+' → '+left+'.000₫.',numOpts(left,[left+50,left-50,have+spend],',000₫'));},
+function(){const nums=[ri(100,999),ri(1000,4999),ri(5000,9999)].sort(()=>Math.random()-.5);const asc=nums.slice().sort((a,b)=>a-b);
+ return Q('pv',3,'G5',null,'Put these in order from SMALLEST to LARGEST: '+nums.join(', '),'Sắp xếp từ BÉ đến LỚN: '+nums.join(', '),'order = sắp xếp • smallest = bé nhất • largest = lớn nhất • ascending = tăng dần',
+ 'Compare by number of digits first, then place value: '+asc.join(' < ')+'. (So sánh số chữ số rồi từng hàng.)','Viết theo thứ tự tăng dần: '+asc.join(' < ')+'.',shuf([asc.join(', '),nums.join(', '),asc.slice().reverse().join(', '),[asc[1],asc[0],asc[2]].join(', ')],0));}
+];
+
+const FRAC_GENS=[
+function(){const d=pick([2,3,4,5,6,8]);const n=ri(1,d-1);
+ return Q('fr',1,'G4','<div style="font-size:30px">'+fracBarHTML(n,d)+'</div>','What fraction is shaded?','Phân số nào được tô màu?','numerator = tử số • denominator = mẫu số • shaded = được tô',
+ n+' out of '+d+' equal parts are shaded → '+n+'/'+d+'. (Tử = số phần tô = '+n+', mẫu = tổng số phần = '+d+'.)','Viết: shaded ÷ total = '+n+'/'+d+'.',shuf([n+'/'+d,d+'/'+n,(n)+'/'+(d+1),(n+1)+'/'+d],0));},
+function(){const base=pick([[1,2],[1,3],[2,3],[1,4],[3,4],[1,5]]);const k=ri(2,3);const en=base[0]*k,ed=base[1]*k;
+ return Q('fr',1,'G4','<div style="font-size:26px">'+fracBarHTML(base[0],base[1],'#2eb872')+' = '+fracBarHTML(en,ed,'#2eb872')+'</div>','Which fraction is EQUIVALENT to '+base[0]+'/'+base[1]+'?','Phân số nào BẰNG '+base[0]+'/'+base[1]+'?','equivalent = bằng nhau • multiply = nhân • both = cả hai (tử và mẫu)',
+ 'Multiply top and bottom by '+k+': '+base[0]+'/'+base[1]+' = '+en+'/'+ed+'. (Nhân cả tử và mẫu với '+k+'.)','Viết: '+base[0]+'/'+base[1]+' = ('+base[0]+'×'+k+')/('+base[1]+'×'+k+') = '+en+'/'+ed+'.',shuf([en+'/'+ed,(en+1)+'/'+ed,en+'/'+(ed+1),(base[0])+'/'+(ed)],0));},
+function(){const d=pick([4,5,6,8]);let a,b;do{a=ri(1,d-1);b=ri(1,d-1);}while(a===b);const big=Math.max(a,b);
+ return Q('fr',1,'G4','<div style="font-size:24px">'+fracBarHTML(a,d,'#7b5ce0')+' vs '+fracBarHTML(b,d,'#ff8c42')+'</div>','Which fraction is GREATER: '+a+'/'+d+' or '+b+'/'+d+'?','Phân số nào LỚN HƠN: '+a+'/'+d+' hay '+b+'/'+d+'?','greater = lớn hơn • same denominator = cùng mẫu số',
+ 'Same denominator → the one with the bigger numerator is bigger: '+big+'/'+d+'. (Cùng mẫu, tử lớn hơn thì lớn hơn.)','Viết: cùng mẫu '+d+', so tử số → '+big+'/'+d+' lớn hơn.',shuf([a+'/'+d,b+'/'+d],a>b?0:1));},
+function(){const d=pick([4,5,6,7,8]);let a,b;do{a=ri(1,d-2);b=ri(1,d-1-a);}while(a+b>=d||a+b<1);const s=a+b;
+ return Q('fr',2,'G4',null,'Add: '+a+'/'+d+' + '+b+'/'+d+' = ?','Cộng: '+a+'/'+d+' + '+b+'/'+d+' = ?','add fractions = cộng phân số • keep the denominator = giữ nguyên mẫu',
+ 'Same denominator: add the numerators, keep '+d+'. '+a+' + '+b+' = '+s+' → '+s+'/'+d+'. (Cộng tử, giữ mẫu.)','Viết: '+a+'/'+d+' + '+b+'/'+d+' = ('+a+'+'+b+')/'+d+' = '+s+'/'+d+'.',shuf([s+'/'+d,s+'/'+(d+d),(a+b)+'/'+(d*2),(s+1)+'/'+d],0));},
+function(){const d=pick([4,5,6,7,8]);let a,b;do{a=ri(2,d-1);b=ri(1,a-1);}while(a-b<1);const r=a-b;
+ return Q('fr',2,'G4',null,'Subtract: '+a+'/'+d+' − '+b+'/'+d+' = ?','Trừ: '+a+'/'+d+' − '+b+'/'+d+' = ?','subtract fractions = trừ phân số • numerator = tử số',
+ 'Same denominator: subtract the numerators, keep '+d+'. '+a+' − '+b+' = '+r+' → '+r+'/'+d+'. (Trừ tử, giữ mẫu.)','Viết: '+a+'/'+d+' − '+b+'/'+d+' = ('+a+'−'+b+')/'+d+' = '+r+'/'+d+'.',shuf([r+'/'+d,r+'/'+(d-1),(a+b)+'/'+d,(r+1)+'/'+d],0));},
+function(){const base=pick([[1,2],[1,3],[1,4],[2,3],[3,4]]);const k=ri(2,4);const en=base[0]*k,ed=base[1]*k;
+ return Q('fr',2,'G5',null,'Simplify '+en+'/'+ed+' to its lowest terms.','Rút gọn '+en+'/'+ed+' về phân số tối giản.','simplify = rút gọn • lowest terms = tối giản • divide = chia • GCD = ước chung lớn nhất',
+ 'Divide top and bottom by '+k+' (their GCD): '+en+'/'+ed+' = '+base[0]+'/'+base[1]+'. (Chia cả tử và mẫu cho ƯCLN = '+k+'.)','Viết: '+en+'/'+ed+' = ('+en+'÷'+k+')/('+ed+'÷'+k+') = '+base[0]+'/'+base[1]+'.',shuf([base[0]+'/'+base[1],en+'/'+ed,base[0]+'/'+(base[1]+1),(base[0]+1)+'/'+base[1]],0));},
+function(){const d=pick([4,5,6,8]);const a=ri(1,d-2),b=ri(1,d-1-a);const s=a+b;const food=pick([['pizza','cái bánh pizza'],['cake','cái bánh kem'],['chocolate bar','thanh sô-cô-la']]);
+ return Q('fr',3,'G4',null,'Nam eats '+a+'/'+d+' of a '+food[0]+' and Mai eats '+b+'/'+d+'. How much did they eat together?','Nam ăn '+a+'/'+d+' '+food[1]+', Mai ăn '+b+'/'+d+'. Cả hai ăn hết bao nhiêu?','together = cùng nhau • add = cộng • of = của',
+ 'Add the parts: '+a+'/'+d+' + '+b+'/'+d+' = '+s+'/'+d+'. (Cộng hai phần cùng mẫu.)','Viết: '+a+'/'+d+' + '+b+'/'+d+' = '+s+'/'+d+'.',shuf([s+'/'+d,s+'/'+(2*d),(s+1)+'/'+d,a+'/'+d],0));},
+function(){const whole=ri(1,3);const d=pick([2,3,4]);const n=ri(1,d-1);
+ return Q('fr',3,'G5','<div style="font-size:24px">'+(whole>1?fracBarHTML(d,d,'#19a7a0')+' ':'')+fracBarHTML(d,d,'#19a7a0')+' '+fracBarHTML(n,d,'#19a7a0')+'</div>','Write this amount as a MIXED number.','Viết lượng này dưới dạng HỖN SỐ.','mixed number = hỗn số • whole = phần nguyên • fraction = phần phân số',
+ whole+' full bars and '+n+'/'+d+' more → '+whole+' '+n+'/'+d+'. ('+whole+' phần nguyên và '+n+'/'+d+'.)','Viết: phần nguyên '+whole+' và phần phân số '+n+'/'+d+' → '+whole+' '+n+'/'+d+'.',shuf([whole+' '+n+'/'+d,whole+'/'+d,(whole+1)+' '+n+'/'+d,n+' '+whole+'/'+d],0));},
+function(){const d=pick([4,6,8,10]);const n=d/2;const v=pick([['1/2','một nửa'],['half','một nửa']]);
+ return Q('fr',3,'G5','<div style="font-size:24px">'+fracBarHTML(n,d,'#ef5d60')+'</div>','Is '+n+'/'+d+' equal to, more than, or less than 1/2?','Phân số '+n+'/'+d+' bằng, lớn hơn hay bé hơn 1/2?','benchmark = mốc so sánh • half = một nửa • equal to = bằng',
+ n+'/'+d+' = '+n+'/'+d+', and half of '+d+' is '+n+', so it equals exactly 1/2. ('+n+' đúng bằng nửa của '+d+' → bằng 1/2.)','Viết: nửa của mẫu '+d+' là '+n+'; tử = '+n+' → '+n+'/'+d+' = 1/2.',shuf(['Equal to 1/2 / Bằng 1/2','More than 1/2 / Lớn hơn 1/2','Less than 1/2 / Bé hơn 1/2','Equal to 1 / Bằng 1'],0));}
+];
+
+const DEC_GENS=[
+function(){const a=ri(1,9),b=ri(1,9),c=ri(1,9);const num=a+'.'+b+c;const place=pick([['tenths','phần mười',b],['hundredths','phần trăm',c],['ones','đơn vị',a]]);
+ return Q('dc',1,'G5',null,'In '+num+', what digit is in the '+place[0]+' place?','Trong '+num+', chữ số nào ở hàng "'+place[1]+'"?','decimal point = dấu phẩy • tenths = phần mười • hundredths = phần trăm',
+ 'After the point: first digit = tenths, second = hundredths. The '+place[0]+' digit is '+place[2]+'. (Sau dấu phẩy: phần mười rồi phần trăm.)','Viết: '+num+' → '+place[0]+' = '+place[2]+'.',numOpts(place[2],[a,b,c].filter(x=>x!==place[2]).concat([(place[2]+1)%10]),''));},
+function(){let x,y;do{x=(ri(10,98)/10);y=(ri(10,98)/10);}while(Math.abs(x-y)<0.05);const big=Math.max(x,y);
+ return Q('dc',1,'G5',null,'Which is GREATER: '+x.toFixed(1)+' or '+y.toFixed(1)+'?','Số nào LỚN HƠN: '+x.toFixed(1)+' hay '+y.toFixed(1)+'?','greater = lớn hơn • compare = so sánh • from the left = từ trái',
+ 'Compare the ones, then the tenths. '+big.toFixed(1)+' is greater. (So sánh phần nguyên rồi phần mười.)','Viết: so sánh phần nguyên trước; nếu bằng thì xét phần mười → '+big.toFixed(1)+'.',shuf([x.toFixed(1),y.toFixed(1)],x>y?0:1));},
+function(){const tenths=ri(1,9);const num='0.'+tenths;const frac=tenths+'/10';
+ return Q('dc',1,'G5','<div style="font-size:24px">'+fracBarHTML(tenths,10,'#19a7a0')+'</div>','Write the decimal '+num+' as a fraction.','Viết số thập phân '+num+' dưới dạng phân số.','decimal = số thập phân • fraction = phân số • tenths = phần mười',
+ num+' means '+tenths+' tenths = '+frac+'. ('+num+' = '+tenths+' phần mười = '+frac+'.)','Viết: '+num+' = '+frac+'.',shuf([frac,tenths+'/100',tenths+'/1',(tenths+1)+'/10'],0));},
+function(){const a=ri(10,80)/10,b=ri(10,80)/10;const s=Math.round((a+b)*10)/10;
+ return Q('dc',2,'G5',null,'Add: '+a.toFixed(1)+' + '+b.toFixed(1)+' = ?','Cộng: '+a.toFixed(1)+' + '+b.toFixed(1)+' = ?','line up = đặt thẳng cột • decimal point = dấu phẩy • add = cộng',
+ 'Line up the decimal points and add: '+a.toFixed(1)+' + '+b.toFixed(1)+' = '+s.toFixed(1)+'. (Thẳng cột dấu phẩy.)','Viết: đặt thẳng dấu phẩy → '+a.toFixed(1)+' + '+b.toFixed(1)+' = '+s.toFixed(1)+'.',shuf([s.toFixed(1),(s+1).toFixed(1),(s-0.1).toFixed(1),Math.round((a+b))+'.0'],0));},
+function(){let a,b;do{a=ri(30,99)/10;b=ri(10,a*10-5)/10;}while(a-b<0.1);const r=Math.round((a-b)*10)/10;
+ return Q('dc',2,'G5',null,'Subtract: '+a.toFixed(1)+' − '+b.toFixed(1)+' = ?','Trừ: '+a.toFixed(1)+' − '+b.toFixed(1)+' = ?','subtract = trừ • line up = đặt thẳng cột • difference = hiệu',
+ 'Line up the decimal points and subtract: '+a.toFixed(1)+' − '+b.toFixed(1)+' = '+r.toFixed(1)+'. (Thẳng cột dấu phẩy.)','Viết: '+a.toFixed(1)+' − '+b.toFixed(1)+' = '+r.toFixed(1)+'.',shuf([r.toFixed(1),(r+0.1).toFixed(1),(r-0.1).toFixed(1),(r+1).toFixed(1)],0));},
+function(){const a=ri(1,8),b=ri(1,9),c=ri(0,9);const num=a+'.'+b+c;const up=c>=5;const r=up?(a+(b+1)/10):(a+b/10);const rr=Math.round(r*10)/10;
+ return Q('dc',2,'G5',null,'Round '+num+' to the nearest TENTH.','Làm tròn '+num+' đến hàng PHẦN MƯỜI.','round = làm tròn • nearest tenth = phần mười gần nhất • hundredths digit = chữ số phần trăm',
+ 'Look at the hundredths digit ('+c+'): '+(up?'≥5 → round up':'<5 → round down')+' → '+rr.toFixed(1)+'. (Nhìn chữ số phần trăm.)','Quy tắc: chữ số phần trăm ≥5 làm tròn lên → '+rr.toFixed(1)+'.',shuf([rr.toFixed(1),(a+'.'+b),(rr+0.1).toFixed(1),num],0));},
+function(){const p1=ri(15,60)/10,p2=ri(15,60)/10;const t=Math.round((p1+p2)*10)/10;
+ return Q('dc',3,'G5',null,'An apple costs '+p1.toFixed(1)+'$ and a banana costs '+p2.toFixed(1)+'$. How much for both?','Một quả táo giá '+p1.toFixed(1)+'$ và một quả chuối giá '+p2.toFixed(1)+'$. Mua cả hai hết bao nhiêu?','cost = giá • total = tổng • both = cả hai',
+ 'Add the prices: '+p1.toFixed(1)+' + '+p2.toFixed(1)+' = '+t.toFixed(1)+'$. (Cộng hai giá tiền.)','Viết: '+p1.toFixed(1)+' + '+p2.toFixed(1)+' = '+t.toFixed(1)+'$.',shuf([t.toFixed(1)+'$',(t+1).toFixed(1)+'$',(t-0.1).toFixed(1)+'$',Math.round(p1+p2)+'.0$'],0));},
+function(){const have=ri(50,99)/10,spend=ri(10,have*10-10)/10;const left=Math.round((have-spend)*10)/10;
+ return Q('dc',3,'G5',null,'Mai has '+have.toFixed(1)+'$. She spends '+spend.toFixed(1)+'$. How much is left?','Mai có '+have.toFixed(1)+'$. Bạn ấy tiêu '+spend.toFixed(1)+'$. Còn lại bao nhiêu?','left = còn lại • spend = tiêu • subtract = trừ',
+ 'Subtract: '+have.toFixed(1)+' − '+spend.toFixed(1)+' = '+left.toFixed(1)+'$. (Còn lại = có − tiêu.)','Viết: '+have.toFixed(1)+' − '+spend.toFixed(1)+' = '+left.toFixed(1)+'$.',shuf([left.toFixed(1)+'$',(left+0.1).toFixed(1)+'$',(left-0.1).toFixed(1)+'$',(have+spend).toFixed(1)+'$'],0));},
+function(){const nums=[ri(11,49)/10,ri(50,89)/10,ri(90,99)/10].sort(()=>Math.random()-.5);const asc=nums.slice().sort((a,b)=>a-b);
+ return Q('dc',3,'G5',null,'Order from SMALLEST to LARGEST: '+nums.map(n=>n.toFixed(1)).join(', '),'Sắp xếp từ BÉ đến LỚN: '+nums.map(n=>n.toFixed(1)).join(', '),'order = sắp xếp • ascending = tăng dần • smallest = bé nhất',
+ 'Compare the ones, then the tenths: '+asc.map(n=>n.toFixed(1)).join(' < ')+'. (So phần nguyên rồi phần mười.)','Viết tăng dần: '+asc.map(n=>n.toFixed(1)).join(' < ')+'.',shuf([asc.map(n=>n.toFixed(1)).join(', '),nums.map(n=>n.toFixed(1)).join(', '),asc.slice().reverse().map(n=>n.toFixed(1)).join(', '),[asc[1],asc[0],asc[2]].map(n=>n.toFixed(1)).join(', ')],0));}
+];
+
+const MD_GENS=[
+function(){const n=ri(2,12);const mult=[n*2,n*3,n*4];const notMult=n*ri(2,4)+ri(1,n-1);
+ return Q('md',1,'G4',null,'Which number is a MULTIPLE of '+n+'?','Số nào là BỘI của '+n+'?','multiple = bội • factor = ước • times table = bảng cửu chương',
+ 'A multiple of '+n+' is in its times table. '+mult[0]+' = '+n+' × 2. ('+mult[0]+' là bội của '+n+'.)','Viết: bội của '+n+' = '+n+', '+n*2+', '+n*3+'… → chọn '+mult[0]+'.',shuf([String(mult[0]),String(notMult),String(notMult+1),String(n*5+1)],0));},
+function(){const facts=[[12,[1,2,3,4,6,12]],[18,[1,2,3,6,9,18]],[24,[1,2,3,4,6,8,12,24]],[16,[1,2,4,8,16]],[20,[1,2,4,5,10,20]]];const f=pick(facts);const factor=pick(f[1].filter(x=>x>1&&x<f[0]));let notF;do{notF=ri(2,f[0]-1);}while(f[1].indexOf(notF)>=0||f[0]%notF===0);
+ return Q('md',1,'G4',null,'Which number is a FACTOR of '+f[0]+'?','Số nào là ƯỚC của '+f[0]+'?','factor = ước (số chia hết) • divisible = chia hết',
+ 'A factor of '+f[0]+' divides it exactly. '+f[0]+' ÷ '+factor+' = '+(f[0]/factor)+' (no remainder). ('+factor+' là ước của '+f[0]+'.)','Viết: '+f[0]+' ÷ '+factor+' = '+(f[0]/factor)+', không dư → '+factor+' là ước.',shuf([String(factor),String(notF),String(notF+1),String(f[0]-1)],0));},
+function(){const a=ri(3,9),b=ri(3,9);const p=a*b;
+ return Q('md',1,'G4','<div style="font-size:22px;letter-spacing:2px">'+Array(b).fill('🟦'.repeat(a)).join('<br>')+'</div>','This array shows '+b+' rows of '+a+'. What multiplication does it show?','Mảng này gồm '+b+' hàng, mỗi hàng '+a+' ô. Nó biểu diễn phép nhân nào?','array = mảng • rows = hàng • product = tích',
+ b+' rows × '+a+' in each row = '+b+' × '+a+' = '+p+'. (Số hàng × số ô mỗi hàng.)','Viết: '+b+' × '+a+' = '+p+'.',shuf([b+' × '+a+' = '+p,b+' + '+a+' = '+(a+b),a+' ÷ '+b+' = ...,b+' × '+a+' = '+(p+a)],0));},
+function(){const a=ri(12,39),b=ri(3,8);const p=a*b;
+ return Q('md',2,'G4',null,'Calculate: '+a+' × '+b+' = ?','Tính: '+a+' × '+b+' = ?','multiply = nhân • split by place = tách hàng • product = tích',
+ 'Split: '+a+' × '+b+' = ('+(Math.floor(a/10)*10)+' × '+b+') + ('+(a%10)+' × '+b+') = '+(Math.floor(a/10)*10*b)+' + '+((a%10)*b)+' = '+p+'. (Tách hàng chục và đơn vị.)','Viết: '+a+' × '+b+' = '+(Math.floor(a/10)*10*b)+' + '+((a%10)*b)+' = '+p+'.',numOpts(p,[p+b,p-b,p+10],''));},
+function(){const b=ri(3,8),q=ri(4,12);const a=b*q;
+ return Q('md',2,'G4',null,'Calculate: '+a+' ÷ '+b+' = ?','Tính: '+a+' ÷ '+b+' = ?','divide = chia • quotient = thương • exactly = chia hết',
+ a+' ÷ '+b+' = '+q+' because '+b+' × '+q+' = '+a+'. (Chia hết, thương = '+q+'.)','Viết: '+a+' ÷ '+b+' = '+q+' (vì '+b+' × '+q+' = '+a+').',numOpts(q,[q+1,q-1,q+2],''));},
+function(){const b=ri(3,7),q=ri(3,9),rem=ri(1,b-1);const a=b*q+rem;
+ return Q('md',2,'G5',null,'Calculate: '+a+' ÷ '+b+' = ? (give quotient and remainder)','Tính: '+a+' ÷ '+b+' = ? (cho thương và số dư)','remainder = số dư • quotient = thương • left over = còn lại',
+ a+' ÷ '+b+': '+b+' × '+q+' = '+(b*q)+', left over '+rem+' → '+q+' remainder '+rem+'. (Thương '+q+', dư '+rem+'.)','Viết: '+a+' ÷ '+b+' = '+q+' dư '+rem+' (vì '+b+'×'+q+' = '+(b*q)+', '+a+'−'+(b*q)+' = '+rem+').',shuf([q+' R '+rem,q+' R '+((rem%(b-1))+1===rem?rem+1:(rem===1?2:1)),(q+1)+' R '+rem,q+' R 0'],0));},
+function(){const groups=ri(4,9),each=ri(3,8);const total=groups*each;const item=pick([['boxes','hộp','pencils','bút'],['baskets','rổ','apples','quả táo'],['bags','túi','candies','viên kẹo']]);
+ return Q('md',3,'G4',null,'There are '+groups+' '+item[0]+', each with '+each+' '+item[2]+'. How many '+item[2]+' in total?','Có '+groups+' '+item[1]+', mỗi '+item[1]+' có '+each+' '+item[3]+'. Tổng có bao nhiêu '+item[3]+'?','in total = tổng cộng • each = mỗi • equal groups = nhóm bằng nhau',
+ 'Equal groups → multiply: '+groups+' × '+each+' = '+total+'. (Các nhóm bằng nhau → nhân.)','Viết: '+groups+' × '+each+' = '+total+'.',numOpts(total,[groups+each,total+each,total-each],''));},
+function(){const each=ri(3,8),groups=ri(4,9);const total=each*groups;const item=pick([['cookies','cái bánh','plates','đĩa'],['stickers','miếng dán','children','bạn'],['marbles','viên bi','bags','túi']]);
+ return Q('md',3,'G4',null,total+' '+item[0]+' are shared equally among '+groups+' '+item[2]+'. How many '+item[0]+' per '+item[2].replace(/s$/,'')+'?',total+' '+item[1]+' chia đều cho '+groups+' '+item[3]+'. Mỗi '+item[3]+' được bao nhiêu '+item[1]+'?','share equally = chia đều • divide = chia • each = mỗi',
+ 'Share equally → divide: '+total+' ÷ '+groups+' = '+each+'. (Chia đều → phép chia.)','Viết: '+total+' ÷ '+groups+' = '+each+'.',numOpts(each,[each+1,each-1,total-groups],''));},
+function(){const b=ri(4,6),q=ri(5,9),rem=ri(1,b-1);const total=b*q+rem;const need=q+1;
+ return Q('md',3,'G5',null,total+' students go on a trip. Each car holds '+b+' students. How many cars are needed so EVERYONE goes?',total+' học sinh đi dã ngoại. Mỗi xe chở '+b+' học sinh. Cần ít nhất bao nhiêu xe để TẤT CẢ đều đi?','at least = ít nhất • round up = làm tròn lên • remainder = số dư',
+ total+' ÷ '+b+' = '+q+' remainder '+rem+'. The leftover '+rem+' still need a car → round UP to '+need+' cars. (Còn dư '+rem+' bạn vẫn cần thêm 1 xe → '+need+' xe.)','Viết: '+total+' ÷ '+b+' = '+q+' dư '+rem+'. Vì còn dư nên cần '+need+' xe (làm tròn lên).',numOpts(need,[q,need+1,b],' cars'));}
+];
+
+/* ---------- speed game generators (numeric) ---------- */
+const SPEED = {
+ geometry:function(){const t=pick(['v','a','ang']);if(t==='v'){const l=ri(2,5),w=ri(2,4),h=ri(2,4);return{q:'Volume: '+l+' × '+w+' × '+h+' = ?',a:l*w*h};}if(t==='a'){const l=ri(3,9),w=ri(2,8);return{q:'Area: '+l+' × '+w+' = ?',a:l*w};}const x=ri(1,8);return{q:'Angle: '+x+' × 10° (in degrees) = ?',a:x*10};},
+ placevalue:function(){const a=ri(120,899),b=ri(120,899);return pick([{q:a+' + '+b+' = ?',a:a+b},{q:Math.max(a,b)+' − '+Math.min(a,b)+' = ?',a:Math.max(a,b)-Math.min(a,b)}]);},
+ fractions:function(){const d=pick([4,5,6,8]);const a=ri(1,d-2),b=ri(1,d-1-a);return{q:a+'/'+d+' + '+b+'/'+d+' = ?/'+d+' (nhập tử số / numerator)',a:a+b};},
+ decimals:function(){const a=ri(10,80)/10,b=ri(10,80)/10;return{q:a.toFixed(1)+' + '+b.toFixed(1)+' = ? (×10, nhập số nguyên vd 3.8→38)',a:Math.round((a+b)*10)};},
+ muldiv:function(){return pick([function(){const a=ri(3,12),b=ri(3,9);return{q:a+' × '+b+' = ?',a:a*b};},function(){const b=ri(3,9),q=ri(3,9);return{q:(b*q)+' ÷ '+b+' = ?',a:q};}])();}
+};
+
+/* ---------- UNITS ---------- */
+const UNITS = {
+ geometry:  {icon:'📐', name:'Geometry',        nameVn:'Hình học',          grade:'G4–5', sub:'Lines, angles, shapes, area, volume &amp; coordinates', gens:GEO_GENS,  shapeMatch:true},
+ placevalue:{icon:'🔢', name:'Place Value',     nameVn:'Giá trị &amp; phép tính', grade:'G4–5', sub:'Giá trị theo hàng • cộng/trừ • làm tròn • so sánh',     gens:PLACE_GENS},
+ fractions: {icon:'🍕', name:'Fractions',       nameVn:'Phân số',           grade:'G4–5', sub:'Phân số • bằng nhau • so sánh • cộng/trừ cùng mẫu',    gens:FRAC_GENS},
+ decimals:  {icon:'🔟', name:'Decimals',        nameVn:'Số thập phân',      grade:'G5',   sub:'Hàng thập phân • so sánh • làm tròn • cộng/trừ',       gens:DEC_GENS},
+ muldiv:    {icon:'✖️', name:'Multiplication &amp; Division', nameVn:'Nhân &amp; Chia', grade:'G4–5', sub:'Nhân chia • ước/bội • chia có dư • toán đố',  gens:MD_GENS}
+};
+const UNIT_ORDER = ['geometry','placevalue','fractions','decimals','muldiv'];
+</script>
+<script>
 /* ================= STATE ================= */
-const S = {score:0, correct:0, streak:0, best:0, done:0, ans:Array(QS.length).fill(null)};
+const S = {score:0, correct:0, streak:0, best:0, done:0, ans:[]};
 const $ = id => document.getElementById(id);
 const TEACHER_ZALO = ''; // điền SĐT Zalo của thầy (vd '0912345678') để hiện nút "Gửi Zalo"
+
+S.unit = null;     // current unit key
+S.qs = [];         // current questions
 
 function updateStats(){
   $('stScore').textContent = S.score;
   $('stCorrect').textContent = S.correct;
   $('stStreak').textContent = S.streak;
-  $('stDone').textContent = S.done + '/' + QS.length;
+  $('stDone').textContent = S.done + '/' + S.qs.length;
 }
 
-/* ================= RENDER QUESTIONS ================= */
-function renderQuestions(){
-  const topics = ['angles','tri','quad','area','vol','coord'];
-  topics.forEach(t=>{
-    const wrap = $('qs-'+t);
-    let html = '', lastD = 0, num = 0;
-    const items = [];
-    QS.forEach((q,i)=>{ if(q.t===t) items.push([q,i]); });
-    items.sort((a,b)=> a[0].d - b[0].d);
-    items.forEach(pair=>{
-      const q = pair[0], i = pair[1];
-      num++;
-      if(q.d!==lastD){ html += '<div class="dang-title">'+DANG_LABEL[q.d]+'</div>'; lastD = q.d; }
-      html += '<div class="qcard" id="qc'+i+'">'
-        + '<div class="meta"><span class="badge qnum">Question '+num+'</span><span class="badge grade">'+q.g+'</span><span class="badge dang">'+DANG_LABEL[q.d].split('·')[0].trim()+'</span></div>'
-        + '<div class="qtext">'+q.q+'</div><div class="qvn">🇻🇳 '+q.vn+'</div>'
-        + (q.svg ? '<div class="qfig">'+q.svg+'</div>' : '')
-        + '<div class="opts">'+q.opts.map((o,oi)=>'<button onclick="answer('+i+','+oi+',this)">'+o+'</button>').join('')+'</div>'
-        + '<div class="explain" id="ex'+i+'"></div></div>';
-    });
-    wrap.innerHTML = html;
+/* ================= UNIT PICKER ================= */
+function renderUnitGrid(){
+  $('unitGrid').innerHTML = UNIT_ORDER.map(k=>{
+    const u = UNITS[k];
+    return '<div class="unit-card" onclick="chooseUnit(\''+k+'\')"><div class="ic">'+u.icon+'</div>'
+      + '<div class="un">'+u.name+'</div><div class="ud">'+u.nameVn+'<br>'+u.sub+'</div>'
+      + '<span class="ug">'+u.grade+'</span></div>';
+  }).join('');
+}
+function chooseUnit(k){
+  S.unit = k;
+  localStorage.setItem('gq_unit', k);
+  buildUnit(k);
+  $('unitModal').classList.remove('show');
+  document.querySelector('.tab[data-t="theory"]').click();
+}
+function buildUnit(k){
+  const u = UNITS[k];
+  // reset progress
+  S.score=0; S.correct=0; S.streak=0; S.best=0; S.done=0;
+  S.qs = u.gens.map(f=>f());
+  S.ans = Array(S.qs.length).fill(null);
+  $('hdrTitle').innerHTML = u.icon+' '+u.name+' – Grade 4 &amp; 5';
+  $('hdrSub').innerHTML = 'Everyday Mathematics • '+u.sub;
+  $('chipUnit').textContent = u.name;
+  $('theoryTitle').innerHTML = u.icon+' Lý thuyết: '+u.name+' / '+u.nameVn;
+  $('theorySub').innerHTML = u.sub;
+  $('practiceTitle').innerHTML = '✏️ Luyện tập: '+u.name;
+  $('theoryWrap').innerHTML = THEORY[k];
+  renderPractice();
+  renderGames();
+  $('resultArea').innerHTML = '<div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả &amp; lời giải chi tiết.<br>🎲 <b>Mỗi lần tải lại trang là một đề mới!</b></div>';
+  $('reviewSection').style.display = 'none';
+  updateStats();
+}
+
+/* ================= RENDER PRACTICE ================= */
+function renderPractice(){
+  let html = '', lastD = 0, num = 0;
+  const items = S.qs.map((q,i)=>[q,i]).sort((a,b)=> a[0].d - b[0].d);
+  items.forEach(pair=>{
+    const q = pair[0], i = pair[1];
+    num++;
+    if(q.d!==lastD){ html += '<div class="dang-title">'+DANG_LABEL[q.d]+'</div>'; lastD = q.d; }
+    html += '<div class="qcard" id="qc'+i+'">'
+      + '<div class="meta"><span class="badge qnum">Question '+num+'</span><span class="badge grade">'+q.g+'</span><span class="badge dang">'+DANG_LABEL[q.d].split('·')[0].trim()+'</span></div>'
+      + '<div class="qtext">'+q.q+'</div><div class="qvn">🇻🇳 '+q.vn+'</div>'
+      + (q.svg ? '<div class="qfig">'+q.svg+'</div>' : '')
+      + '<div class="opts">'+q.opts.map((o,oi)=>'<button onclick="answer('+i+','+oi+',this)">'+o+'</button>').join('')+'</div>'
+      + '<div class="explain" id="ex'+i+'"></div></div>';
   });
+  $('practiceWrap').innerHTML = html;
 }
 
 function answer(i, oi, btn){
   if(S.ans[i]!==null) return;
-  const q = QS[i], ok = oi===q.a;
+  const q = S.qs[i], ok = oi===q.a;
   S.ans[i] = {picked:oi, ok:ok};
   S.done++;
   const card = $('qc'+i);
@@ -877,10 +828,6 @@ function loadStudent(){
   try{ return JSON.parse(localStorage.getItem('gq_student')||'null'); }catch(e){ return null; }
 }
 function showStudent(st){ $('chipName').textContent = st ? st.n : '—'; }
-(function initStudent(){
-  const st = loadStudent();
-  if(st && st.n){ $('infoModal').classList.remove('show'); showStudent(st); $('inpName').value = st.n; $('inpPhone').value = st.p; }
-})();
 $('startBtn').addEventListener('click',()=>{
   const n = $('inpName').value.trim(), p = $('inpPhone').value.trim();
   if(n.length < 2){ $('infoErr').textContent = '⚠️ Hãy nhập họ tên đầy đủ nhé! / Please enter your full name.'; return; }
@@ -889,8 +836,10 @@ $('startBtn').addEventListener('click',()=>{
   showStudent({n:n,p:p});
   $('infoErr').textContent = '';
   $('infoModal').classList.remove('show');
+  $('unitModal').classList.add('show');   // chuyển sang chọn unit
 });
 $('studentChip').addEventListener('click',()=> $('infoModal').classList.add('show'));
+$('unitChip').addEventListener('click',()=> $('unitModal').classList.add('show'));
 
 /* ================= FINISH / RESULTS / REVIEW ================= */
 function loadBoard(){ try{ return JSON.parse(localStorage.getItem('gq_board')||'[]'); }catch(e){ return []; } }
@@ -900,7 +849,7 @@ $('finishBtn').addEventListener('click',()=>{
   if(!st){ $('infoModal').classList.add('show'); return; }
   if(S.done===0 && !confirm('Bạn chưa làm câu nào! Vẫn muốn nộp bài? / You haven\'t answered anything yet — submit anyway?')) return;
   const acc = S.done ? Math.round(S.correct/S.done*100) : 0;
-  const entry = {n:st.n, p:st.p, score:S.score, c:S.correct, d:S.done, best:S.best, acc:acc, date:new Date().toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'})};
+  const entry = {n:st.n, p:st.p, unit:UNITS[S.unit].name, unitKey:S.unit, score:S.score, c:S.correct, d:S.done, best:S.best, acc:acc, date:new Date().toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'})};
   const board = loadBoard();
   board.push(entry);
   board.sort((a,b)=> b.score - a.score);
@@ -912,16 +861,17 @@ $('finishBtn').addEventListener('click',()=>{
 });
 
 function resultText(e){
-  return '🏆 GEOMETRY QUEST – KẾT QUẢ / RESULT\n'
+  return '🏆 MATHS QUEST – KẾT QUẢ / RESULT\n'
    + '👤 Họ tên: ' + e.n + '\n📱 SĐT: ' + e.p + '\n'
+   + '📚 Unit: ' + e.unit + '\n'
    + '⭐ Điểm: ' + e.score + '\n✅ Đúng: ' + e.c + '/' + e.d + ' câu (' + e.acc + '%)\n'
-   + '🔥 Chuỗi đúng dài nhất: ' + e.best + '\n🕐 ' + e.date + '\n📐 Everyday Maths G4–5 · Geometry';
+   + '🔥 Chuỗi đúng dài nhất: ' + e.best + '\n🕐 ' + e.date + '\n📐 Everyday Maths G4–5';
 }
 
 function renderResult(e){
   let msg = e.acc>=90 ? '🌟 Xuất sắc! Outstanding!' : e.acc>=70 ? '👍 Giỏi lắm! Great job!' : e.acc>=50 ? '💪 Khá tốt — luyện thêm nhé! Keep going!' : '📚 Xem kỹ phần giải thích bên dưới rồi làm lại nhé!';
   $('resultArea').innerHTML = '<div class="result-card"><h3>'+msg+'</h3>'
-   + '<div class="who">👤 '+e.n+' &nbsp;•&nbsp; 📱 '+e.p+' &nbsp;•&nbsp; 🕐 '+e.date+'</div>'
+   + '<div class="who">👤 '+e.n+' &nbsp;•&nbsp; 📚 '+e.unit+' &nbsp;•&nbsp; 🕐 '+e.date+'</div>'
    + '<div class="rgrid">'
    + '<div class="rbox"><div class="big">'+e.score+'⭐</div><div class="lbl">Score / Điểm</div></div>'
    + '<div class="rbox"><div class="big">'+e.c+'/'+e.d+'</div><div class="lbl">Correct / Số câu đúng</div></div>'
@@ -947,25 +897,30 @@ function fallbackCopy(txt,done){
 }
 
 function renderBoard(me){
-  const board = loadBoard();
-  if(!board.length){ $('boardWrap').innerHTML = '<div class="lesson" style="text-align:center">Chưa có ai trên bảng xếp hạng — hãy là người đầu tiên! 🚀</div>'; return; }
+  let board = loadBoard();
+  // chỉ hiện xếp hạng của unit đang chọn
+  if(S.unit) board = board.filter(e=> (e.unitKey||'geometry')===S.unit);
+  if(!board.length){ $('boardWrap').innerHTML = '<div class="lesson" style="text-align:center">Chưa có ai trên bảng xếp hạng của unit này — hãy là người đầu tiên! 🚀</div>'; return; }
+  board.sort((a,b)=> b.score - a.score);
   const medal = ['🥇','🥈','🥉'];
   let rows = board.slice(0,20).map((e,i)=>{
     const isMe = me && e.n===me.n && e.date===me.date && e.score===me.score;
     return '<tr'+(isMe?' class="me"':'')+'><td>'+(medal[i]||(i+1))+'</td><td>'+e.n+'</td><td>'+e.p+'</td><td><b>'+e.score+'⭐</b></td><td>'+e.c+'/'+e.d+' ('+(e.acc||0)+'%)</td><td>'+e.date+'</td></tr>';
   }).join('');
-  $('boardWrap').innerHTML = '<table class="board-table"><tr><th>#</th><th>Tên / Name</th><th>SĐT / Phone</th><th>Điểm</th><th>Đúng</th><th>Thời gian</th></tr>'+rows+'</table>';
+  $('boardWrap').innerHTML = '<div style="text-align:center;color:var(--mut);font-size:13.5px;margin-bottom:8px">📚 Unit: <b>'+(S.unit?UNITS[S.unit].name:'')+'</b></div><table class="board-table"><tr><th>#</th><th>Tên / Name</th><th>SĐT / Phone</th><th>Điểm</th><th>Đúng</th><th>Thời gian</th></tr>'+rows+'</table>';
 }
 
 let reviewFilter = 'all';
 function renderReview(){
   $('reviewSection').style.display = 'block';
-  let html = '', lastTopic = '';
-  QS.forEach((q,i)=>{
+  let html = '', lastD = 0;
+  const items = S.qs.map((q,i)=>[q,i]).sort((a,b)=> a[0].d - b[0].d);
+  items.forEach(pair=>{
+    const q = pair[0], i = pair[1];
     const a = S.ans[i];
     if(reviewFilter==='wrong' && a && a.ok) return;
     if(reviewFilter==='right' && (!a || !a.ok)) return;
-    if(q.t!==lastTopic){ html += '<div class="dang-title">📂 '+TOPIC_NAME[q.t]+'</div>'; lastTopic = q.t; }
+    if(q.d!==lastD){ html += '<div class="dang-title">'+DANG_LABEL[q.d]+'</div>'; lastD = q.d; }
     const cls = !a ? 'skipped' : (a.ok ? '' : 'was-wrong');
     const status = !a ? '⬜ Chưa làm / Skipped' : (a.ok ? '✅ Đúng / Correct' : '❌ Sai / Incorrect');
     html += '<div class="review-q '+cls+'">'
@@ -986,7 +941,25 @@ document.querySelectorAll('.filter-row button').forEach(b=>{
   });
 });
 
-/* ================= GAME 1: SHAPE MATCH ================= */
+/* ================= GAMES (theo unit) ================= */
+function renderGames(){
+  const u = UNITS[S.unit];
+  let html = '';
+  if(u.shapeMatch){
+    html += '<div class="game-card"><h3>🃏 Shape Match</h3>'
+      + '<div class="gdesc">Lật 2 thẻ để ghép hình với tên. Ghép đủ 6 cặp để +30 ⭐!<br>Flip two cards — match each shape with its name!</div>'
+      + '<div class="game-stat">Pairs: <span id="memPairs">0</span>/6 &nbsp;|&nbsp; Mistakes: <span id="memMiss">0</span></div>'
+      + '<div class="mem-grid" id="memGrid"></div><button class="gbtn purple" id="memNew">🔄 New Game</button></div>';
+  }
+  html += '<div class="game-card"><h3>⚡ Speed Round – '+u.name+'</h3>'
+    + '<div class="gdesc">45 giây — trả lời nhanh các phép tính của unit này! +5 ⭐ mỗi câu đúng.<br>Answer as many as you can in 45 seconds!</div>'
+    + '<div class="game-stat">⏱ <span id="spTime">45</span>s &nbsp;|&nbsp; Correct: <span id="spScore">0</span></div>'
+    + '<div class="game-play" id="spArea"><button class="gbtn" onclick="startSpeed()">▶ Start!</button></div></div>';
+  $('gamesWrap').innerHTML = html;
+  if(u.shapeMatch){ $('memNew').addEventListener('click', memNew); memNew(); }
+}
+
+/* ---- Shape Match (geometry) ---- */
 let mem = {first:null, lock:false, pairs:0, miss:0};
 function memNew(){
   mem = {first:null, lock:false, pairs:0, miss:0};
@@ -994,7 +967,7 @@ function memNew(){
   const cards = [];
   MEM_SHAPES.forEach((sh,id)=>{ cards.push({id:id, html:sh.s}); cards.push({id:id, html:'<b>'+sh.n+'</b>'}); });
   cards.sort(()=>Math.random()-.5);
-  $('memGrid').innerHTML = cards.map((c,ci)=>'<button class="mem-card" data-id="'+c.id+'" data-html="'+encodeURIComponent(c.html)+'" onclick="memFlip(this)">?</button>').join('');
+  $('memGrid').innerHTML = cards.map((c)=>'<button class="mem-card" data-id="'+c.id+'" data-html="'+encodeURIComponent(c.html)+'" onclick="memFlip(this)">?</button>').join('');
 }
 function memFlip(el){
   if(mem.lock || el.classList.contains('flipped') || el.classList.contains('matched')) return;
@@ -1011,87 +984,56 @@ function memFlip(el){
     setTimeout(()=>{ [a,b].forEach(x=>{ x.classList.remove('flipped'); x.textContent='?'; }); mem.lock = false; }, 750);
   }
 }
-$('memNew').addEventListener('click', memNew);
 
-/* ================= GAME 2: ANGLE DASH ================= */
-let ad = {time:0, score:0, cur:null, timer:null};
-const AD_TYPES = [['Acute / Nhọn','acute'],['Right / Vuông','right'],['Obtuse / Tù','obtuse'],['Straight / Bẹt','straight']];
-function adAngleSvg(deg){
-  const r = deg*Math.PI/180, len = 62;
-  const x = 75 + len*Math.cos(r), y = 84 - len*Math.sin(r);
-  return '<svg width="160" height="100" viewBox="0 0 160 100"><line x1="75" y1="84" x2="148" y2="84" stroke="#2f7fd1" stroke-width="4" stroke-linecap="round"/><line x1="75" y1="84" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#ef5d60" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="84" r="5" fill="#2b3a55"/></svg>';
+/* ---- Speed Round (mọi unit) ---- */
+let sp = {time:0, score:0, ans:0, timer:null};
+function spNext(){
+  const it = SPEED[S.unit]();
+  sp.ans = it.a;
+  $('spQ').innerHTML = it.q;
+  const inp = $('spInp'); inp.value=''; inp.focus();
 }
-function adNext(){
-  const pick = AD_TYPES[Math.floor(Math.random()*4)][1];
-  let deg = pick==='acute' ? 15+Math.floor(Math.random()*66)
-        : pick==='right' ? 90
-        : pick==='obtuse' ? 100+Math.floor(Math.random()*66) : 180;
-  ad.cur = pick;
-  $('adFig').innerHTML = adAngleSvg(deg);
-}
-function adPick(type, btn){
-  if(!ad.timer) return;
-  if(type===ad.cur){ ad.score++; S.score += 5; $('adScore').textContent = ad.score; updateStats(); btn.classList.add('flash-ok'); }
-  else btn.classList.add('flash-no');
-  setTimeout(()=>btn.classList.remove('flash-ok','flash-no'),400);
-  adNext();
-}
-$('adStart').addEventListener('click', startAD);
-function startAD(){
-  if(ad.timer) return;
-  ad.time = 45; ad.score = 0;
-  $('adScore').textContent = 0; $('adTime').textContent = 45;
-  $('adArea').innerHTML = '<div id="adFig"></div><div class="choice-row">'
-    + AD_TYPES.map(t=>'<button onclick="adPick(\''+t[1]+'\',this)">'+t[0]+'</button>').join('')+'</div>';
-  adNext();
-  ad.timer = setInterval(()=>{
-    ad.time--; $('adTime').textContent = ad.time;
-    if(ad.time<=0){
-      clearInterval(ad.timer); ad.timer = null;
-      $('adArea').innerHTML = '<p style="font-weight:800;font-size:17px">⏰ Hết giờ! Em đúng <span style="color:var(--green)">'+ad.score+'</span> câu (+'+(ad.score*5)+'⭐)</p><button class="gbtn" onclick="startAD()">▶ Chơi lại / Play again</button>';
-    }
-  },1000);
-}
-
-/* ================= GAME 3: CUBE COUNTER ================= */
-let cc = {time:0, score:0, ans:0, timer:null};
-function ccNext(){
-  const l = 2+Math.floor(Math.random()*5), w = 2+Math.floor(Math.random()*4), h = 2+Math.floor(Math.random()*4);
-  cc.ans = l*w*h;
-  $('ccQ').innerHTML = '📦 length = <b>'+l+'</b> &nbsp;×&nbsp; width = <b>'+w+'</b> &nbsp;×&nbsp; height = <b>'+h+'</b> &nbsp;→&nbsp; V = ?';
-  const inp = $('ccInp'); inp.value = ''; inp.focus();
-}
-function ccCheck(){
-  if(!cc.timer) return;
-  const v = parseInt($('ccInp').value,10);
-  const box = $('ccQ');
-  if(v===cc.ans){ cc.score++; S.score += 5; $('ccScore').textContent = cc.score; updateStats(); box.classList.add('flash-ok'); }
+function spCheck(){
+  if(!sp.timer) return;
+  const v = parseInt($('spInp').value,10);
+  const box = $('spQ');
+  if(v===sp.ans){ sp.score++; S.score += 5; $('spScore').textContent = sp.score; updateStats(); box.classList.add('flash-ok'); }
   else box.classList.add('flash-no');
   setTimeout(()=>box.classList.remove('flash-ok','flash-no'),400);
-  ccNext();
+  spNext();
 }
-$('ccStart').addEventListener('click', startCC);
-function startCC(){
-  if(cc.timer) return;
-  cc.time = 45; cc.score = 0;
-  $('ccScore').textContent = 0; $('ccTime').textContent = 45;
-  $('ccArea').innerHTML = '<p id="ccQ" style="font-size:18px;border-radius:10px;padding:8px"></p><div class="choice-row"><input type="number" class="num-input" id="ccInp" placeholder="V = ?"><button class="gbtn" style="margin-top:0" onclick="ccCheck()">✔ Check</button></div>';
-  $('ccInp').addEventListener('keydown',e=>{ if(e.key==='Enter') ccCheck(); });
-  ccNext();
-  cc.timer = setInterval(()=>{
-    cc.time--; $('ccTime').textContent = cc.time;
-    if(cc.time<=0){
-      clearInterval(cc.timer); cc.timer = null;
-      $('ccArea').innerHTML = '<p style="font-weight:800;font-size:17px">⏰ Hết giờ! Em đúng <span style="color:var(--green)">'+cc.score+'</span> câu (+'+(cc.score*5)+'⭐)</p><button class="gbtn" onclick="startCC()">▶ Chơi lại / Play again</button>';
+function startSpeed(){
+  if(sp.timer) return;
+  sp.time=45; sp.score=0;
+  $('spScore').textContent=0; $('spTime').textContent=45;
+  $('spArea').innerHTML = '<p id="spQ" style="font-size:19px;font-weight:700;border-radius:10px;padding:8px"></p>'
+    + '<div class="choice-row"><input type="number" class="num-input" id="spInp" placeholder="= ?"><button class="gbtn" style="margin-top:0" onclick="spCheck()">✔ Check</button></div>';
+  $('spInp').addEventListener('keydown',e=>{ if(e.key==='Enter') spCheck(); });
+  spNext();
+  sp.timer = setInterval(()=>{
+    sp.time--; $('spTime').textContent = sp.time;
+    if(sp.time<=0){
+      clearInterval(sp.timer); sp.timer=null;
+      $('spArea').innerHTML = '<p style="font-weight:800;font-size:17px">⏰ Hết giờ! Em đúng <span style="color:var(--green)">'+sp.score+'</span> câu (+'+(sp.score*5)+'⭐)</p><button class="gbtn" onclick="startSpeed()">▶ Chơi lại / Play again</button>';
     }
   },1000);
 }
 
 /* ================= INIT ================= */
-renderQuestions();
-memNew();
-renderBoard(null);
-updateStats();
+renderUnitGrid();
+(function init(){
+  const st = loadStudent();
+  const savedUnit = localStorage.getItem('gq_unit');
+  if(st && st.n){
+    showStudent(st); $('inpName').value = st.n; $('inpPhone').value = st.p;
+    $('infoModal').classList.remove('show');
+    if(savedUnit && UNITS[savedUnit]){ chooseUnit(savedUnit); }
+    else { $('unitModal').classList.add('show'); }
+  } else {
+    $('infoModal').classList.add('show');
+  }
+  updateStats();
+})();
 </script>
 </body>
 </html>
