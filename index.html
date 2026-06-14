@@ -272,7 +272,7 @@ gridRect:'<svg width="190" height="180" viewBox="0 0 190 180"><g stroke="#cfe3f7
 
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
-function shuf(opts,a){const idx=opts.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}return{opts:idx.map(i=>opts[i]),a:idx.indexOf(a)};}
+function shuf(opts,a){const correct=opts[a];const seen={};const dedup=[];for(let i=0;i<opts.length;i++){const key=String(opts[i]);if(seen[key])continue;seen[key]=1;dedup.push(opts[i]);}opts=dedup;a=opts.indexOf(correct);const idx=opts.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}return{opts:idx.map(i=>opts[i]),a:idx.indexOf(a)};}
 function numOpts(c,cands,unit){unit=unit||'';const used={};used[c]=1;const ds=[];for(let i=0;i<cands.length&&ds.length<3;i++){const v=Math.round(cands[i]);if(v>0&&!used[v]){used[v]=1;ds.push(v);}}let k=1;while(ds.length<3){const v=c+k;if(v>0&&!used[v]){used[v]=1;ds.push(v);}k=k>0?-k:(-k+1);}return shuf([c+unit,ds[0]+unit,ds[1]+unit,ds[2]+unit],0);}
 function Q(t,d,g,svg,q,vn,vocab,why,how,sh){return{t:t,d:d,g:g,svg:svg,q:q,vn:vn,vocab:vocab,why:why,how:how,opts:sh.opts,a:sh.a};}
 
@@ -576,6 +576,78 @@ THEORY.muldiv = `
 <ul><li><b>Factor / ước</b>: số chia hết. <b>Multiple / bội</b>: kết quả của bảng cửu chương. <span class="vn">Ước của 12: 1,2,3,4,6,12. Bội của 3: 3,6,9,12…</span></li></ul>
 <div class="ex-box"><span class="extag">Example / Ví dụ</span> Multi-digit: 24 × 3 = (20×3) + (4×3) = 60 + 12 = <b>72</b>. <span class="vn">Tách hàng: 24×3 = 60+12 = 72.</span></div></div>`;
 
+THEORY.measurement = `
+<div class="lesson"><h3>📏 1. Length / Độ dài</h3>
+<ul><li>Units: <b>mm, cm, m, km</b>. <span class="vn">Đơn vị: mi-li-mét, xăng-ti-mét, mét, ki-lô-mét.</span></li>
+<li>1 cm = <b>10 mm</b> • 1 m = <b>100 cm</b> • 1 km = <b>1000 m</b>. <span class="vn">Mỗi bậc đổi nhân hoặc chia cho 10, 100 hoặc 1000.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 3 m = 3 × 100 = <b>300 cm</b>. <span class="vn">Đổi mét ra xăng-ti-mét: nhân 100.</span></div></div>
+
+<div class="lesson"><h3>⚖️ 2. Mass / Khối lượng</h3>
+<ul><li>Units: <b>g</b> (gram) and <b>kg</b> (kilogram). 1 kg = <b>1000 g</b>. <span class="vn">1 ki-lô-gam = 1000 gam.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 2 kg = 2 × 1000 = <b>2000 g</b>. <span class="vn">Đổi kg ra g: nhân 1000.</span></div></div>
+
+<div class="lesson"><h3>🥤 3. Capacity / Dung tích</h3>
+<ul><li>Units: <b>ml</b> (millilitre) and <b>l</b> (litre). 1 l = <b>1000 ml</b>. <span class="vn">1 lít = 1000 mi-li-lít.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 1 l 500 ml = 1000 + 500 = <b>1500 ml</b>. <span class="vn">Đổi lít ra ml rồi cộng.</span></div></div>
+
+<div class="lesson"><h3>🎯 4. Choosing units / Chọn đơn vị phù hợp</h3>
+<ul><li>Pencil → cm • room → m • city distance → km • apple → g • person → kg • spoon → ml • bottle → l. <span class="vn">Vật nhỏ dùng đơn vị nhỏ, vật lớn dùng đơn vị lớn.</span></li></ul>
+<div class="ex-box"><span class="extag">Key / Ghi nhớ</span> Big unit → small unit: <b>multiply</b>. Small → big: <b>divide</b>. <span class="vn">Lớn ra nhỏ: nhân. Nhỏ ra lớn: chia.</span></div></div>`;
+
+THEORY.time = `
+<div class="lesson"><h3>🕐 1. Reading time / Xem giờ</h3>
+<ul><li>1 hour = <b>60 minutes</b> • 1 minute = <b>60 seconds</b> • 1 day = <b>24 hours</b>. <span class="vn">1 giờ = 60 phút • 1 phút = 60 giây • 1 ngày = 24 giờ.</span></li>
+<li>The short hand shows hours, the long hand shows minutes. <span class="vn">Kim ngắn chỉ giờ, kim dài chỉ phút.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 3:45 means 3 hours and 45 minutes. <span class="vn">3:45 là 3 giờ 45 phút.</span></div></div>
+
+<div class="lesson"><h3>🌗 2. AM / PM &amp; 24-hour / Sáng–chiều &amp; giờ 24</h3>
+<ul><li><b>AM</b> = midnight to noon (buổi sáng) • <b>PM</b> = noon to midnight (chiều/tối). <span class="vn">1 PM = 13:00, 8 PM = 20:00.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 2 PM in 24-hour time = 12 + 2 = <b>14:00</b>. <span class="vn">Giờ chiều cộng 12.</span></div></div>
+
+<div class="lesson"><h3>⏳ 3. Elapsed time / Khoảng thời gian</h3>
+<ul><li>Count on from the start time, or subtract end − start. <span class="vn">Đếm thêm từ giờ bắt đầu, hoặc lấy giờ kết thúc trừ giờ bắt đầu.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> From 9:00 to 11:30 = <b>2 hours 30 minutes</b>. <span class="vn">11:30 − 9:00 = 2 giờ 30 phút.</span></div></div>
+
+<div class="lesson"><h3>📅 4. Calendar / Lịch</h3>
+<ul><li>1 week = <b>7 days</b> • 1 year = <b>12 months</b> = <b>365 days</b> (366 in a leap year). <span class="vn">1 tuần = 7 ngày • 1 năm = 12 tháng = 365 ngày (năm nhuận 366).</span></li></ul>
+<div class="ex-box"><span class="extag">Key / Ghi nhớ</span> 2 weeks = 2 × 7 = <b>14 days</b>. <span class="vn">Đổi tuần ra ngày: nhân 7.</span></div></div>`;
+
+THEORY.data = `
+<div class="lesson"><h3>📊 1. Bar graphs / Biểu đồ cột</h3>
+<ul><li>Each bar's height shows the amount — read the value at the top. <span class="vn">Chiều cao mỗi cột cho biết số lượng — đọc giá trị ở đỉnh cột.</span></li>
+<li>The <b>tallest</b> bar = most, the <b>shortest</b> = least. <span class="vn">Cột cao nhất = nhiều nhất; thấp nhất = ít nhất.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Cats = 8, Dogs = 5 → 8 − 5 = <b>3 more cats</b>. <span class="vn">So sánh hai cột bằng phép trừ.</span></div></div>
+
+<div class="lesson"><h3>🖼️ 2. Pictographs / Biểu đồ tranh</h3>
+<ul><li>Each symbol stands for a number (the <b>key</b>) — multiply symbols × key. <span class="vn">Mỗi hình tượng trưng cho một số — nhân số hình với giá trị mỗi hình.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> ⭐ = 2 books. 4 stars = 4 × 2 = <b>8 books</b>. <span class="vn">4 ngôi sao × 2 = 8.</span></div></div>
+
+<div class="lesson"><h3>➗ 3. Mean (average) / Số trung bình</h3>
+<ul><li><b>Mean = sum ÷ how many.</b> <span class="vn">Trung bình = tổng ÷ số lượng.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 4, 6, 8 → (4+6+8) ÷ 3 = 18 ÷ 3 = <b>6</b>. <span class="vn">Cộng lại rồi chia cho số phần tử.</span></div></div>
+
+<div class="lesson"><h3>📈 4. Range &amp; mode / Khoảng biến thiên &amp; số trội</h3>
+<ul><li><b>Range</b> = largest − smallest. <b>Mode</b> = the value that appears most. <span class="vn">Khoảng biến thiên = lớn nhất − bé nhất • Số trội = xuất hiện nhiều nhất.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 3, 7, 7, 10 → range = 10 − 3 = <b>7</b>, mode = <b>7</b>. <span class="vn">Khoảng = 7; số trội = 7.</span></div></div>`;
+
+THEORY.money = `
+<div class="lesson"><h3>💵 1. Money amounts / Đọc số tiền</h3>
+<ul><li>Vietnam đồng (₫) notes: 1,000 · 2,000 · 5,000 · 10,000 · 20,000 · 50,000 · 100,000… <span class="vn">Các mệnh giá tiền Việt.</span></li>
+<li>US: $1 = <b>100 cents</b>. <span class="vn">1 đô la = 100 xu.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 5,000₫ + 5,000₫ + 10,000₫ = <b>20,000₫</b>. <span class="vn">Cộng các mệnh giá.</span></div></div>
+
+<div class="lesson"><h3>🧮 2. Total cost / Tính tổng tiền</h3>
+<ul><li>Add the prices, or multiply price × quantity for the same item. <span class="vn">Cộng các giá, hoặc lấy giá × số lượng.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> 3 pens at 6,000₫ each = 3 × 6,000 = <b>18,000₫</b>. <span class="vn">Giá × số lượng.</span></div></div>
+
+<div class="lesson"><h3>🔁 3. Making change / Tính tiền thừa</h3>
+<ul><li><b>Change = money paid − total cost.</b> <span class="vn">Tiền thừa = tiền đưa − tiền hàng.</span></li></ul>
+<div class="ex-box"><span class="extag">Example / Ví dụ</span> Pay 50,000₫ for goods worth 35,000₫ → 50,000 − 35,000 = <b>15,000₫</b>. <span class="vn">Tiền thừa = tiền đưa − tiền hàng.</span></div></div>
+
+<div class="lesson"><h3>🏷️ 4. Compare prices / So sánh giá</h3>
+<ul><li>Cheaper = smaller price. Compare like with like to find the better deal. <span class="vn">Rẻ hơn = giá nhỏ hơn; so sánh cùng loại để chọn lợi hơn.</span></li></ul>
+<div class="ex-box"><span class="extag">Key / Ghi nhớ</span> Always line up the units (₫) and compare same items. <span class="vn">So sánh cùng đơn vị, cùng loại hàng.</span></div></div>`;
+
 /* ---------- QUESTION GENERATORS cho 4 unit mới ---------- */
 const placeName=['ones / đơn vị','tens / chục','hundreds / trăm','thousands / nghìn','ten-thousands / chục nghìn'];
 const PLACE_GENS=[
@@ -611,7 +683,7 @@ function(){const price1=ri(15,40),price2=ri(15,40);const total=price1+price2;
 function(){const have=ri(500,900),spend=ri(150,400);const left=have-spend;
  return Q('pv',3,'G4',null,'Lan has '+have+',000₫. She spends '+spend+',000₫. How much is left?','Lan có '+have+'.000₫. Bạn ấy tiêu '+spend+'.000₫. Còn lại bao nhiêu?','left = còn lại • spend = tiêu • subtract = trừ',
  'Subtract: '+have+' − '+spend+' = '+left+' (thousand đồng). (Còn lại = có − tiêu.)','Viết: '+have+' − '+spend+' = '+left+' → '+left+'.000₫.',numOpts(left,[left+50,left-50,have+spend],',000₫'));},
-function(){const nums=[ri(100,999),ri(1000,4999),ri(5000,9999)].sort(()=>Math.random()-.5);const asc=nums.slice().sort((a,b)=>a-b);
+function(){const asc=[ri(100,999),ri(1000,4999),ri(5000,9999)];let nums;do{nums=asc.slice().sort(()=>Math.random()-.5);}while(nums[0]<=nums[1]&&nums[1]<=nums[2]);
  return Q('pv',3,'G5',null,'Put these in order from SMALLEST to LARGEST: '+nums.join(', '),'Sắp xếp từ BÉ đến LỚN: '+nums.join(', '),'order = sắp xếp • smallest = bé nhất • largest = lớn nhất • ascending = tăng dần',
  'Compare by number of digits first, then place value: '+asc.join(' < ')+'. (So sánh số chữ số rồi từng hàng.)','Viết theo thứ tự tăng dần: '+asc.join(' < ')+'.',shuf([asc.join(', '),nums.join(', '),asc.slice().reverse().join(', '),[asc[1],asc[0],asc[2]].join(', ')],0));}
 ];
@@ -671,7 +743,7 @@ function(){const p1=ri(15,60)/10,p2=ri(15,60)/10;const t=Math.round((p1+p2)*10)/
 function(){const have=ri(50,99)/10,spend=ri(10,have*10-10)/10;const left=Math.round((have-spend)*10)/10;
  return Q('dc',3,'G5',null,'Mai has '+have.toFixed(1)+'$. She spends '+spend.toFixed(1)+'$. How much is left?','Mai có '+have.toFixed(1)+'$. Bạn ấy tiêu '+spend.toFixed(1)+'$. Còn lại bao nhiêu?','left = còn lại • spend = tiêu • subtract = trừ',
  'Subtract: '+have.toFixed(1)+' − '+spend.toFixed(1)+' = '+left.toFixed(1)+'$. (Còn lại = có − tiêu.)','Viết: '+have.toFixed(1)+' − '+spend.toFixed(1)+' = '+left.toFixed(1)+'$.',shuf([left.toFixed(1)+'$',(left+0.1).toFixed(1)+'$',(left-0.1).toFixed(1)+'$',(have+spend).toFixed(1)+'$'],0));},
-function(){const nums=[ri(11,49)/10,ri(50,89)/10,ri(90,99)/10].sort(()=>Math.random()-.5);const asc=nums.slice().sort((a,b)=>a-b);
+function(){const asc=[ri(11,49)/10,ri(50,89)/10,ri(90,99)/10];let nums;do{nums=asc.slice().sort(()=>Math.random()-.5);}while(nums[0]<=nums[1]&&nums[1]<=nums[2]);
  return Q('dc',3,'G5',null,'Order from SMALLEST to LARGEST: '+nums.map(n=>n.toFixed(1)).join(', '),'Sắp xếp từ BÉ đến LỚN: '+nums.map(n=>n.toFixed(1)).join(', '),'order = sắp xếp • ascending = tăng dần • smallest = bé nhất',
  'Compare the ones, then the tenths: '+asc.map(n=>n.toFixed(1)).join(' < ')+'. (So phần nguyên rồi phần mười.)','Viết tăng dần: '+asc.map(n=>n.toFixed(1)).join(' < ')+'.',shuf([asc.map(n=>n.toFixed(1)).join(', '),nums.map(n=>n.toFixed(1)).join(', '),asc.slice().reverse().map(n=>n.toFixed(1)).join(', '),[asc[1],asc[0],asc[2]].map(n=>n.toFixed(1)).join(', ')],0));}
 ];
@@ -706,13 +778,129 @@ function(){const b=ri(4,6),q=ri(5,9),rem=ri(1,b-1);const total=b*q+rem;const nee
  total+' ÷ '+b+' = '+q+' remainder '+rem+'. The leftover '+rem+' still need a car → round UP to '+need+' cars. (Còn dư '+rem+' bạn vẫn cần thêm 1 xe → '+need+' xe.)','Viết: '+total+' ÷ '+b+' = '+q+' dư '+rem+'. Vì còn dư nên cần '+need+' xe (làm tròn lên).',numOpts(need,[q,need+1,b],' cars'));}
 ];
 
+/* ---------- helpers cho Data unit ---------- */
+function barsHTML(cats){const max=Math.max.apply(null,cats.map(c=>c[1]));const cols=['#4aa3f0','#2eb872','#ff8c42','#7b5ce0','#ef5d60'];return '<div style="display:flex;gap:16px;align-items:flex-end;justify-content:center;height:150px;padding:8px 0">'+cats.map((c,i)=>{const h=Math.round(c[1]/max*110)+14;return '<div style="text-align:center"><div style="font-size:13px;font-weight:800;color:#33415c">'+c[1]+'</div><div style="width:38px;height:'+h+'px;background:'+cols[i%cols.length]+';border-radius:7px 7px 0 0;margin:2px auto"></div><div style="font-size:12.5px;margin-top:5px;font-weight:600">'+c[0]+'</div></div>';}).join('')+'</div>';}
+function makeChart(){const names=pick([[['Apples','Táo'],['Bananas','Chuối'],['Oranges','Cam'],['Pears','Lê']],[['Mon','Thứ 2'],['Tue','Thứ 3'],['Wed','Thứ 4'],['Thu','Thứ 5']],[['Red','Đỏ'],['Blue','Xanh'],['Green','Lục'],['Yellow','Vàng']]]);let vals;do{vals=[ri(2,12),ri(2,12),ri(2,12),ri(2,12)];}while(new Set(vals).size!==4);return {names:names,vals:vals};}
+
+/* ---------- MEASUREMENT ---------- */
+const MEAS_GENS=[
+function(){const opts=[['the length of a pencil','độ dài cây bút chì','cm'],['the distance between two cities','khoảng cách giữa hai thành phố','km'],['the mass of an apple','khối lượng quả táo','g'],['the water in a glass','lượng nước trong cốc','ml'],['the mass of a person','cân nặng một người','kg']];const o=pick(opts);const all=['mm','cm','m','km','g','kg','ml','l'];const distract=all.filter(x=>x!==o[2]).sort(()=>Math.random()-.5).slice(0,3);
+ return Q('me',1,'G4',null,'Which unit best measures '+o[0]+'?','Đơn vị nào hợp nhất để đo '+o[1]+'?','unit = đơn vị • measure = đo • length = độ dài • mass = khối lượng','Match the object size to the right unit → '+o[2]+'. (Vật cỡ này đo bằng '+o[2]+'.)','Chọn đơn vị phù hợp với kích cỡ: '+o[2]+'.',shuf([o[2],distract[0],distract[1],distract[2]],0));},
+function(){const facts=[['1 cm','mm',10],['1 m','cm',100],['1 km','m',1000],['1 kg','g',1000],['1 l','ml',1000]];const f=pick(facts);
+ return Q('me',1,'G4',null,f[0]+' = ? '+f[1],f[0]+' = ? '+f[1],'convert = đổi đơn vị • equals = bằng',f[0]+' = '+f[2]+' '+f[1]+'. (Ghi nhớ bảng đổi đơn vị.)','Học thuộc: '+f[0]+' = '+f[2]+' '+f[1]+'.',numOpts(f[2],[f[2]*10,Math.round(f[2]/10),f[2]+10],' '+f[1]));},
+function(){const sets=[['km','m',1000,'longer','dài hơn'],['kg','g',1000,'heavier','nặng hơn'],['l','ml',1000,'more','nhiều hơn']];const s=pick(sets);const a=ri(1,5);let bb=ri(a*s[2]-400,a*s[2]+400);if(bb===a*s[2])bb+=10;const aInSmall=a*s[2];const aStr=a+' '+s[0];const bStr=bb+' '+s[1];const aBigger=aInSmall>bb;
+ return Q('me',1,'G5',null,'Which is '+s[3]+': '+aStr+' or '+bStr+'?','Cái nào '+s[4]+': '+aStr+' hay '+bStr+'?','compare = so sánh • convert first = đổi cùng đơn vị trước','Convert to the same unit: '+aStr+' = '+aInSmall+' '+s[1]+', then compare with '+bb+' '+s[1]+' → '+(aBigger?aStr:bStr)+'. (Đổi cùng đơn vị rồi so sánh.)','Đổi '+aStr+' = '+aInSmall+' '+s[1]+', so với '+bb+' '+s[1]+' → '+(aBigger?aStr:bStr)+'.',shuf([aStr,bStr],aBigger?0:1));},
+function(){const m=ri(2,9);const cm=m*100;
+ return Q('me',2,'G4',null,'Convert '+m+' m to centimetres: '+m+' m = ? cm','Đổi '+m+' m ra xăng-ti-mét: '+m+' m = ? cm','convert = đổi • multiply by 100 = nhân 100',m+' m = '+m+' × 100 = '+cm+' cm. (1 m = 100 cm.)','Nhân 100: '+m+' × 100 = '+cm+' cm.',numOpts(cm,[m*10,m*1000,cm+100],' cm'));},
+function(){const cm=ri(3,40);const mm=cm*10;
+ return Q('me',2,'G4',null,'Convert '+cm+' cm to millimetres: '+cm+' cm = ? mm','Đổi '+cm+' cm ra mi-li-mét: '+cm+' cm = ? mm','multiply by 10 = nhân 10',cm+' cm = '+cm+' × 10 = '+mm+' mm. (1 cm = 10 mm.)','Nhân 10: '+cm+' × 10 = '+mm+' mm.',numOpts(mm,[cm,cm*100,mm+10],' mm'));},
+function(){const km=ri(2,9);const m=km*1000;
+ return Q('me',2,'G5',null,'Convert '+km+' km to metres: '+km+' km = ? m','Đổi '+km+' km ra mét: '+km+' km = ? m','multiply by 1000 = nhân 1000',km+' km = '+km+' × 1000 = '+m+' m. (1 km = 1000 m.)','Nhân 1000: '+km+' × 1000 = '+m+' m.',numOpts(m,[km*100,km*10,m+1000],' m'));},
+function(){const kg=ri(2,9);const g=kg*1000;
+ return Q('me',2,'G5',null,'Convert '+kg+' kg to grams: '+kg+' kg = ? g','Đổi '+kg+' kg ra gam: '+kg+' kg = ? g','multiply by 1000 = nhân 1000',kg+' kg = '+kg+' × 1000 = '+g+' g. (1 kg = 1000 g.)','Nhân 1000: '+kg+' × 1000 = '+g+' g.',numOpts(g,[kg*100,kg*10,g+1000],' g'));},
+function(){const l=ri(2,9);const ml=l*1000;
+ return Q('me',2,'G5',null,'Convert '+l+' l to millilitres: '+l+' l = ? ml','Đổi '+l+' l ra mi-li-lít: '+l+' l = ? ml','litre = lít • millilitre = mi-li-lít',l+' l = '+l+' × 1000 = '+ml+' ml. (1 l = 1000 ml.)','Nhân 1000: '+l+' × 1000 = '+ml+' ml.',numOpts(ml,[l*100,l*10,ml+1000],' ml'));},
+function(){const a=ri(20,80),b=ri(20,80);const s=a+b;
+ return Q('me',2,'G4',null,'One rope is '+a+' cm and another is '+b+' cm. Joined together, how long?','Một sợi dây '+a+' cm và một sợi '+b+' cm. Nối lại dài bao nhiêu?','total length = tổng độ dài • add = cộng','Add the lengths: '+a+' + '+b+' = '+s+' cm. (Cộng hai độ dài.)','Viết: '+a+' + '+b+' = '+s+' cm.',numOpts(s,[s+10,s-10,a+b+100],' cm'));},
+function(){const m=ri(2,6),extra=ri(20,90);const totalCm=m*100+extra;
+ return Q('me',3,'G5',null,'A ribbon is '+m+' m '+extra+' cm long. How many centimetres in total?','Một dải ruy băng dài '+m+' m '+extra+' cm. Tổng cộng bao nhiêu xăng-ti-mét?','in total = tổng cộng • convert then add = đổi rồi cộng',m+' m = '+(m*100)+' cm; plus '+extra+' cm = '+totalCm+' cm. (Đổi m ra cm rồi cộng.)','Viết: '+m+'×100 + '+extra+' = '+totalCm+' cm.',numOpts(totalCm,[m*100,totalCm+100,m+extra],' cm'));},
+function(){const kg=ri(2,5),g=ri(100,800);const totalG=kg*1000+g;
+ return Q('me',3,'G5',null,'A bag holds '+kg+' kg '+g+' g of rice. What is its mass in grams?','Một bao gạo nặng '+kg+' kg '+g+' g. Khối lượng đó bằng bao nhiêu gam?','mass = khối lượng • convert = đổi đơn vị',kg+' kg = '+(kg*1000)+' g; plus '+g+' g = '+totalG+' g. (Đổi kg ra g rồi cộng.)','Viết: '+kg+'×1000 + '+g+' = '+totalG+' g.',numOpts(totalG,[kg*1000,totalG+1000,kg+g],' g'));},
+function(){const bottleMl=ri(300,900);const n=ri(3,6);const totalMl=bottleMl*n;
+ return Q('me',3,'G5',null,n+' bottles each hold '+bottleMl+' ml of juice. How much juice altogether?',n+' chai, mỗi chai '+bottleMl+' ml nước ép. Tất cả bao nhiêu ml?','altogether = tất cả • each = mỗi • multiply = nhân','Multiply: '+n+' × '+bottleMl+' = '+totalMl+' ml. (Số chai × dung tích mỗi chai.)','Viết: '+n+' × '+bottleMl+' = '+totalMl+' ml.',numOpts(totalMl,[bottleMl+n,totalMl+bottleMl,totalMl-bottleMl],' ml'));},
+function(){const totalM=ri(5,9)*100;const used=ri(120,400);const left=totalM-used;
+ return Q('me',3,'G5',null,'A wire is '+totalM+' cm long. '+used+' cm is cut off. How much is left?','Một đoạn dây dài '+totalM+' cm. Cắt đi '+used+' cm. Còn lại bao nhiêu?','cut off = cắt đi • left = còn lại • subtract = trừ','Subtract: '+totalM+' − '+used+' = '+left+' cm. (Còn lại = ban đầu − đã cắt.)','Viết: '+totalM+' − '+used+' = '+left+' cm.',numOpts(left,[left+100,left-100,totalM+used],' cm'));}
+];
+
+/* ---------- TIME ---------- */
+const TIME_GENS=[
+function(){const facts=[['1 hour','minutes',60],['1 minute','seconds',60],['1 day','hours',24],['1 week','days',7]];const f=pick(facts);
+ return Q('ti',1,'G4',null,f[0]+' = ? '+f[1],f[0]+' = ? '+f[1],'hour = giờ • minute = phút • second = giây • day = ngày • week = tuần',f[0]+' = '+f[2]+' '+f[1]+'. (Ghi nhớ.)','Học thuộc: '+f[0]+' = '+f[2]+' '+f[1]+'.',numOpts(f[2],[f[2]+10,Math.abs(f[2]-10),f[2]*2],' '+f[1]));},
+function(){const facts=[['days in a week','số ngày trong tuần',7],['months in a year','số tháng trong năm',12],['days in a year','số ngày trong năm (năm thường)',365],['hours in a day','số giờ trong ngày',24]];const f=pick(facts);
+ return Q('ti',1,'G4',null,'How many '+f[0]+'?','Có bao nhiêu '+f[1]+'?','week = tuần • month = tháng • year = năm','There are '+f[2]+' '+f[0]+'. (Ghi nhớ.)','Nhớ: '+f[2]+' '+f[0]+'.',numOpts(f[2],[f[2]+1,Math.abs(f[2]-1),f[2]+2],''));},
+function(){const h=ri(1,9);const h24=h+12;
+ return Q('ti',1,'G5',null,'What is '+h+' PM in 24-hour time?','Giờ '+h+' giờ chiều/tối đổi sang giờ 24 là mấy giờ?','PM = chiều/tối • 24-hour = giờ 24 • add 12 = cộng 12',h+' PM = 12 + '+h+' = '+h24+':00. (Giờ chiều cộng 12.)','Viết: 12 + '+h+' = '+h24+':00.',shuf([h24+':00',(h24-1)+':00',h+':00',(h24+1)+':00'],0));},
+function(){const h=ri(2,8);const m=h*60;
+ return Q('ti',2,'G4',null,'Convert '+h+' hours to minutes: '+h+' h = ? min','Đổi '+h+' giờ ra phút: '+h+' giờ = ? phút','multiply by 60 = nhân 60',h+' × 60 = '+m+' minutes. (1 giờ = 60 phút.)','Nhân 60: '+h+' × 60 = '+m+' phút.',numOpts(m,[h*6,h*100,m+60],' phút'));},
+function(){const mn=ri(2,8);const s=mn*60;
+ return Q('ti',2,'G4',null,'Convert '+mn+' minutes to seconds: '+mn+' min = ? s','Đổi '+mn+' phút ra giây: '+mn+' phút = ? giây','multiply by 60 = nhân 60',mn+' × 60 = '+s+' seconds. (1 phút = 60 giây.)','Nhân 60: '+mn+' × 60 = '+s+' giây.',numOpts(s,[mn*6,mn*100,s+60],' giây'));},
+function(){const d=ri(2,9);const h=d*24;
+ return Q('ti',2,'G5',null,'Convert '+d+' days to hours: '+d+' days = ? hours','Đổi '+d+' ngày ra giờ: '+d+' ngày = ? giờ','multiply by 24 = nhân 24',d+' × 24 = '+h+' hours. (1 ngày = 24 giờ.)','Nhân 24: '+d+' × 24 = '+h+' giờ.',numOpts(h,[d*12,d*60,h+24],' giờ'));},
+function(){const w=ri(2,8);const d=w*7;
+ return Q('ti',2,'G4',null,'Convert '+w+' weeks to days: '+w+' weeks = ? days','Đổi '+w+' tuần ra ngày: '+w+' tuần = ? ngày','multiply by 7 = nhân 7',w+' × 7 = '+d+' days. (1 tuần = 7 ngày.)','Nhân 7: '+w+' × 7 = '+d+' ngày.',numOpts(d,[w+7,w*10,d+7],' ngày'));},
+function(){const sh=ri(1,9),sm=pick([0,10,15,30]);const dur=pick([30,45,60,90,120]);const tot=sh*60+sm+dur;const eh=Math.floor(tot/60),em=tot%60;const fmt=(H,M)=>H+':'+String(M).padStart(2,'0');
+ return Q('ti',2,'G5',null,'A film starts at '+fmt(sh,sm)+' and lasts '+dur+' minutes. What time does it end?','Một bộ phim bắt đầu lúc '+fmt(sh,sm)+' và kéo dài '+dur+' phút. Mấy giờ kết thúc?','start = bắt đầu • lasts = kéo dài • end = kết thúc','Add '+dur+' minutes to '+fmt(sh,sm)+' → '+fmt(eh,em)+'. (Cộng thời lượng vào giờ bắt đầu.)','Viết: '+fmt(sh,sm)+' + '+dur+' phút = '+fmt(eh,em)+'.',shuf([fmt(eh,em),fmt(eh+1,em),fmt(sh,(sm+dur)%60),fmt(eh,(em+15)%60)],0));},
+function(){const startH=ri(7,9);const endH=ri(11,16);const dur=endH-startH;
+ return Q('ti',3,'G4',null,'School starts at '+startH+':00 and finishes at '+endH+':00. How many hours is that?','Trường bắt đầu lúc '+startH+':00 và tan lúc '+endH+':00. Như vậy là mấy tiếng?','how long = bao lâu • subtract times = trừ giờ',endH+':00 − '+startH+':00 = '+dur+' hours. (Giờ kết thúc trừ giờ bắt đầu.)','Viết: '+endH+' − '+startH+' = '+dur+' giờ.',numOpts(dur,[dur+1,Math.abs(dur-1),endH+startH],' giờ'));},
+function(){const perDay=ri(2,4);const days=ri(4,7);const tot=perDay*days;
+ return Q('ti',3,'G4',null,'Nam reads '+perDay+' hours each day for '+days+' days. How many hours in total?','Nam đọc sách '+perDay+' giờ mỗi ngày trong '+days+' ngày. Tổng cộng bao nhiêu giờ?','each day = mỗi ngày • in total = tổng cộng','Multiply: '+perDay+' × '+days+' = '+tot+' hours. (Số giờ mỗi ngày × số ngày.)','Viết: '+perDay+' × '+days+' = '+tot+' giờ.',numOpts(tot,[perDay+days,tot+days,tot-perDay],' giờ'));},
+function(){const totalMin=ri(2,3)*60+pick([15,30,45]);const h=Math.floor(totalMin/60),m=totalMin%60;
+ return Q('ti',3,'G5',null,'A trip takes '+totalMin+' minutes. How many hours and minutes is that?','Một chuyến đi mất '+totalMin+' phút. Bằng bao nhiêu giờ và phút?','convert = đổi • 60 minutes = 1 hour',totalMin+' ÷ 60 = '+h+' hours '+m+' minutes. ('+totalMin+' phút = '+h+' giờ '+m+' phút.)','Viết: '+totalMin+' phút = '+h+' giờ '+m+' phút.',shuf([h+' giờ '+m+' phút',(h+1)+' giờ '+m+' phút',h+' giờ '+((m+15)%60)+' phút',h+' giờ '+((m+30)%60)+' phút'],0));}
+];
+
+/* ---------- DATA &amp; GRAPHS ---------- */
+const DATA_GENS=[
+function(){const c=makeChart();const cats=c.names.map((n,i)=>[n[0],c.vals[i]]);const maxI=c.vals.indexOf(Math.max.apply(null,c.vals));
+ return Q('da',1,'G4',barsHTML(cats),'Look at the bar graph. Which has the MOST?','Nhìn biểu đồ cột. Loại nào NHIỀU NHẤT?','bar graph = biểu đồ cột • most = nhiều nhất • tallest = cao nhất','The tallest bar is '+c.names[maxI][0]+' with '+c.vals[maxI]+'. (Cột cao nhất = nhiều nhất.)','Tìm cột cao nhất → '+c.names[maxI][0]+'.',shuf(c.names.map(n=>n[0]),maxI));},
+function(){const c=makeChart();const cats=c.names.map((n,i)=>[n[0],c.vals[i]]);const minI=c.vals.indexOf(Math.min.apply(null,c.vals));
+ return Q('da',1,'G4',barsHTML(cats),'Which has the FEWEST?','Loại nào ÍT NHẤT?','fewest = ít nhất • least = ít nhất • shortest = thấp nhất','The shortest bar is '+c.names[minI][0]+' with '+c.vals[minI]+'. (Cột thấp nhất = ít nhất.)','Tìm cột thấp nhất → '+c.names[minI][0]+'.',shuf(c.names.map(n=>n[0]),minI));},
+function(){const c=makeChart();const cats=c.names.map((n,i)=>[n[0],c.vals[i]]);const k=ri(0,3);
+ return Q('da',1,'G4',barsHTML(cats),'How many '+c.names[k][0]+' are there?','Có bao nhiêu '+c.names[k][1]+'?','read the bar = đọc cột • value = giá trị','Read the top of the '+c.names[k][0]+' bar → '+c.vals[k]+'. (Đọc giá trị ở đỉnh cột.)','Nhìn đỉnh cột '+c.names[k][0]+' → '+c.vals[k]+'.',numOpts(c.vals[k],[c.vals[k]+1,Math.abs(c.vals[k]-1),c.vals[k]+2],''));},
+function(){const each=pick([2,5,10]);const stars=ri(3,6);const total=each*stars;
+ return Q('da',1,'G5','<div style="font-size:26px;text-align:center;letter-spacing:3px">'+'⭐'.repeat(stars)+'</div>','In a pictograph ⭐ = '+each+' books. What do '+stars+' stars mean?','Trong biểu đồ tranh ⭐ = '+each+' quyển sách. '+stars+' ngôi sao nghĩa là bao nhiêu quyển?','pictograph = biểu đồ tranh • key = chú giải • each = mỗi',stars+' × '+each+' = '+total+' books. (Số hình × giá trị mỗi hình.)','Viết: '+stars+' × '+each+' = '+total+'.',numOpts(total,[stars+each,total+each,stars],' books'));},
+function(){const c=makeChart();const cats=c.names.map((n,i)=>[n[0],c.vals[i]]);const total=c.vals.reduce((a,b)=>a+b,0);
+ return Q('da',2,'G4',barsHTML(cats),'What is the TOTAL of all four bars?','Tổng của cả bốn cột là bao nhiêu?','total = tổng • add all = cộng tất cả','Add them all: '+c.vals.join(' + ')+' = '+total+'. (Cộng tất cả các cột.)','Viết: '+c.vals.join(' + ')+' = '+total+'.',numOpts(total,[total+2,total-2,Math.max.apply(null,c.vals)],''));},
+function(){const c=makeChart();const cats=c.names.map((n,i)=>[n[0],c.vals[i]]);const mx=Math.max.apply(null,c.vals),mn=Math.min.apply(null,c.vals);const range=mx-mn;
+ return Q('da',2,'G5',barsHTML(cats),'What is the difference between the most and the fewest?','Chênh lệch giữa loại nhiều nhất và ít nhất là bao nhiêu?','difference = hiệu • range = khoảng (lớn nhất − bé nhất)','Largest − smallest = '+mx+' − '+mn+' = '+range+'. (Hiệu = lớn nhất − bé nhất.)','Viết: '+mx+' − '+mn+' = '+range+'.',numOpts(range,[range+1,Math.abs(range-1),mx+mn],''));},
+function(){let i=ri(0,3),j;do{j=ri(0,3);}while(j===i);const c=makeChart();const cats=c.names.map((n,k)=>[n[0],c.vals[k]]);if(c.vals[i]<c.vals[j]){const t=i;i=j;j=t;}const diff=c.vals[i]-c.vals[j];
+ return Q('da',2,'G4',barsHTML(cats),'How many more '+c.names[i][0]+' than '+c.names[j][0]+'?','Nhiều hơn bao nhiêu '+c.names[i][1]+' so với '+c.names[j][1]+'?','how many more = nhiều hơn bao nhiêu • subtract = trừ',c.vals[i]+' − '+c.vals[j]+' = '+diff+'. (Lấy cột cao trừ cột thấp.)','Viết: '+c.vals[i]+' − '+c.vals[j]+' = '+diff+'.',numOpts(diff,[c.vals[i]+c.vals[j],diff+1,c.vals[i]],''));},
+function(){const n=4;let vals=[ri(2,10),ri(2,10),ri(2,10),ri(2,10)];let sum=vals.reduce((a,b)=>a+b,0);const adj=(n-(sum%n))%n;vals[0]+=adj;sum+=adj;const mean=sum/n;
+ return Q('da',2,'G5',null,'Find the mean (average) of: '+vals.join(', '),'Tìm số trung bình của: '+vals.join(', '),'mean = số trung bình • average = trung bình cộng • sum ÷ count','Mean = ('+vals.join(' + ')+') ÷ '+n+' = '+sum+' ÷ '+n+' = '+mean+'. (Tổng ÷ số lượng.)','Viết: '+sum+' ÷ '+n+' = '+mean+'.',numOpts(mean,[mean+1,Math.abs(mean-1),sum],''));},
+function(){const n=4;let scores=[ri(5,10),ri(5,10),ri(5,10),ri(5,10)];let sum=scores.reduce((a,b)=>a+b,0);const adj=(n-(sum%n))%n;scores[0]+=adj;sum+=adj;const mean=sum/n;
+ return Q('da',3,'G5',null,'Mai scored '+scores.join(', ')+' on four tests. What is her average score?','Mai được '+scores.join(', ')+' điểm trong bốn bài kiểm tra. Điểm trung bình là bao nhiêu?','average = trung bình • test = bài kiểm tra • sum ÷ count','Average = '+sum+' ÷ '+n+' = '+mean+'. (Cộng các điểm rồi chia cho số bài.)','Viết: ('+scores.join('+')+') ÷ '+n+' = '+mean+'.',numOpts(mean,[mean+1,Math.abs(mean-1),sum],' điểm'));},
+function(){const base=ri(2,6);const others=[];while(others.length<2){const v=ri(1,9);if(v!==base&&others.indexOf(v)<0)others.push(v);}const list=[base,base,others[0],others[1]].sort(()=>Math.random()-.5);
+ return Q('da',3,'G5',null,'Which number appears MOST often (the mode)? '+list.join(', '),'Số nào xuất hiện NHIỀU NHẤT (số trội)? '+list.join(', '),'mode = số trội • most often = xuất hiện nhiều nhất',base+' appears twice — more than the others. Mode = '+base+'. (Số xuất hiện nhiều lần nhất.)','Đếm số lần xuất hiện → '+base+' nhiều nhất.',numOpts(base,[others[0],others[1],base+1],''));},
+function(){const total=ri(20,40);const part=ri(5,15);const rest=total-part;
+ return Q('da',3,'G4',null,'A survey asked '+total+' students their favourite sport. '+part+' chose football. How many chose something else?','Khảo sát '+total+' học sinh về môn thể thao yêu thích. '+part+' bạn chọn bóng đá. Bao nhiêu bạn chọn môn khác?','survey = khảo sát • the rest = số còn lại • subtract = trừ',total+' − '+part+' = '+rest+'. (Tổng − số đã biết = số còn lại.)','Viết: '+total+' − '+part+' = '+rest+'.',numOpts(rest,[rest+5,total+part,part],''));}
+];
+
+/* ---------- MONEY ---------- */
+const MONEY_GENS=[
+function(){let a,b;do{a=ri(1,9)*5000;b=ri(1,9)*5000;}while(a===b);const big=Math.max(a,b);
+ return Q('mo',1,'G4',null,'Which is MORE money: '+a.toLocaleString('en-US')+'₫ or '+b.toLocaleString('en-US')+'₫?','Số tiền nào NHIỀU HƠN: '+a.toLocaleString('en-US')+'₫ hay '+b.toLocaleString('en-US')+'₫?','more = nhiều hơn • compare = so sánh','Compare the amounts → '+big.toLocaleString('en-US')+'₫ is more. (So sánh số tiền.)','Số lớn hơn là '+big.toLocaleString('en-US')+'₫.',shuf([a.toLocaleString('en-US')+'₫',b.toLocaleString('en-US')+'₫'],a>b?0:1));},
+function(){const note=pick([1000,2000,5000,10000]);const n=ri(3,8);const target=note*n;
+ return Q('mo',1,'G4',null,'How many '+note.toLocaleString('en-US')+'₫ notes make '+target.toLocaleString('en-US')+'₫?','Cần bao nhiêu tờ '+note.toLocaleString('en-US')+'₫ để được '+target.toLocaleString('en-US')+'₫?','note = tờ tiền • how many = bao nhiêu • divide = chia',target.toLocaleString('en-US')+' ÷ '+note.toLocaleString('en-US')+' = '+n+' notes. (Chia tổng cho mệnh giá.)','Viết: '+target.toLocaleString('en-US')+' ÷ '+note.toLocaleString('en-US')+' = '+n+'.',numOpts(n,[n+1,n-1,n+2],' tờ'));},
+function(){const dollars=ri(2,9);const cents=dollars*100;
+ return Q('mo',1,'G5',null,'$'+dollars+' = ? cents','$'+dollars+' = ? xu (cents)','dollar = đô la • cent = xu • 1 dollar = 100 cents','$'+dollars+' = '+dollars+' × 100 = '+cents+' cents. (1 đô = 100 xu.)','Nhân 100: '+dollars+' × 100 = '+cents+' cents.',numOpts(cents,[dollars*10,dollars,cents+100],' cents'));},
+function(){const items=ri(2,4);const prices=[];for(let i=0;i<items;i++)prices.push(ri(2,9));const total=prices.reduce((a,b)=>a+b,0);
+ return Q('mo',2,'G4',null,'Buy items costing '+prices.map(p=>p+',000₫').join(', ')+'. What is the total?','Mua các món giá '+prices.map(p=>p+'.000₫').join(', ')+'. Tổng tiền là bao nhiêu?','total = tổng tiền • add prices = cộng các giá','Add the prices: '+prices.join(' + ')+' = '+total+' (thousand ₫). (Cộng các giá.)','Viết: '+prices.join(' + ')+' = '+total+' → '+total+'.000₫.',numOpts(total,[total+1,total-1,total+10],',000₫'));},
+function(){const price=ri(3,9),qty=ri(2,6);const total=price*qty;
+ return Q('mo',2,'G4',null,qty+' pens cost '+price+',000₫ each. Total cost?',qty+' cây bút giá '+price+'.000₫ mỗi cây. Tổng tiền?','each = mỗi • price × quantity = giá × số lượng',price+' × '+qty+' = '+total+' (thousand ₫). (Giá × số lượng.)','Viết: '+price+' × '+qty+' = '+total+' → '+total+'.000₫.',numOpts(total,[price+qty,total+price,total-price],',000₫'));},
+function(){const cost=ri(12,45);const paid=pick([50,100]);const change=paid-cost;
+ return Q('mo',2,'G5',null,'You buy goods for '+cost+',000₫ and pay with a '+paid+',000₫ note. How much change?','Bạn mua hàng hết '+cost+'.000₫ và trả bằng tờ '+paid+'.000₫. Tiền thừa bao nhiêu?','change = tiền thừa • paid = trả • subtract = trừ','Change = '+paid+' − '+cost+' = '+change+' (thousand ₫). (Tiền thừa = tiền đưa − tiền hàng.)','Viết: '+paid+' − '+cost+' = '+change+' → '+change+'.000₫.',numOpts(change,[change+5,change-5,paid+cost],',000₫'));},
+function(){const a=ri(1,4),b=ri(1,4);const total=a*10000+b*5000;
+ return Q('mo',2,'G5',null,a+' note(s) of 10,000₫ and '+b+' note(s) of 5,000₫. How much altogether?',a+' tờ 10.000₫ và '+b+' tờ 5.000₫. Tổng cộng bao nhiêu?','note = tờ • altogether = tất cả',a+'×10,000 + '+b+'×5,000 = '+total.toLocaleString('en-US')+'₫. (Cộng giá trị các tờ.)','Viết: '+(a*10000)+' + '+(b*5000)+' = '+total+'₫.',numOpts(total,[total+5000,total-5000,total+10000],'₫'));},
+function(){const perWeek=ri(5,15),weeks=ri(3,6);const total=perWeek*weeks;
+ return Q('mo',3,'G4',null,'An saves '+perWeek+',000₫ each week for '+weeks+' weeks. How much in total?','An tiết kiệm '+perWeek+'.000₫ mỗi tuần trong '+weeks+' tuần. Tổng tiết kiệm bao nhiêu?','save = tiết kiệm • each week = mỗi tuần • multiply = nhân',perWeek+' × '+weeks+' = '+total+' (thousand ₫). (Số tiền mỗi tuần × số tuần.)','Viết: '+perWeek+' × '+weeks+' = '+total+' → '+total+'.000₫.',numOpts(total,[perWeek+weeks,total+perWeek,total-weeks],',000₫'));},
+function(){let a=ri(8,18),b=ri(8,18);while(a===b){b=ri(8,18);}const cheaper=a<b?'Shop A':'Shop B';
+ return Q('mo',3,'G5',null,'The same bag costs '+a+',000₫ at Shop A and '+b+',000₫ at Shop B. Which is cheaper?','Cùng một chiếc cặp giá '+a+'.000₫ ở Shop A và '+b+'.000₫ ở Shop B. Nơi nào rẻ hơn?','cheaper = rẻ hơn • compare prices = so sánh giá','Smaller price is cheaper → '+cheaper+' ('+Math.min(a,b)+'.000₫). (Giá nhỏ hơn thì rẻ hơn.)','So sánh: '+Math.min(a,b)+' < '+Math.max(a,b)+' → '+cheaper+'.',shuf(['Shop A','Shop B'],a<b?0:1));},
+function(){const have=pick([100,200,500]);const spend=ri(30,90);const left=have-spend;
+ return Q('mo',3,'G4',null,'Hoa has '+have+',000₫. She spends '+spend+',000₫ on a book. How much is left?','Hoa có '+have+'.000₫. Bạn ấy tiêu '+spend+'.000₫ mua sách. Còn lại bao nhiêu?','left = còn lại • spend = tiêu','Subtract: '+have+' − '+spend+' = '+left+' (thousand ₫). (Còn lại = có − tiêu.)','Viết: '+have+' − '+spend+' = '+left+' → '+left+'.000₫.',numOpts(left,[left+10,left-10,have+spend],',000₫'));},
+function(){const p1=ri(8,20),p2=ri(8,20);const total=p1+p2;const paid=pick([50,100]);const change=paid-total;
+ return Q('mo',3,'G5',null,'Buy a toy '+p1+',000₫ and a book '+p2+',000₫, pay with '+paid+',000₫. How much change?','Mua đồ chơi '+p1+'.000₫ và sách '+p2+'.000₫, trả '+paid+'.000₫. Tiền thừa bao nhiêu?','total then change = tính tổng rồi trừ • change = tiền thừa','Total = '+p1+' + '+p2+' = '+total+'; change = '+paid+' − '+total+' = '+change+' (thousand ₫). (Tính tổng rồi trừ.)','Viết: '+paid+' − ('+p1+'+'+p2+') = '+change+' → '+change+'.000₫.',numOpts(change,[change+5,change-5,total],',000₫'));}
+];
+
 /* ---------- speed game generators (numeric) ---------- */
 const SPEED = {
  geometry:function(){const t=pick(['v','a','ang']);if(t==='v'){const l=ri(2,5),w=ri(2,4),h=ri(2,4);return{q:'Volume: '+l+' × '+w+' × '+h+' = ?',a:l*w*h};}if(t==='a'){const l=ri(3,9),w=ri(2,8);return{q:'Area: '+l+' × '+w+' = ?',a:l*w};}const x=ri(1,8);return{q:'Angle: '+x+' × 10° (in degrees) = ?',a:x*10};},
  placevalue:function(){const a=ri(120,899),b=ri(120,899);return pick([{q:a+' + '+b+' = ?',a:a+b},{q:Math.max(a,b)+' − '+Math.min(a,b)+' = ?',a:Math.max(a,b)-Math.min(a,b)}]);},
  fractions:function(){const d=pick([4,5,6,8]);const a=ri(1,d-2),b=ri(1,d-1-a);return{q:a+'/'+d+' + '+b+'/'+d+' = ?/'+d+' (nhập tử số / numerator)',a:a+b};},
  decimals:function(){const a=ri(10,80)/10,b=ri(10,80)/10;return{q:a.toFixed(1)+' + '+b.toFixed(1)+' = ? (×10, nhập số nguyên vd 3.8→38)',a:Math.round((a+b)*10)};},
- muldiv:function(){return pick([function(){const a=ri(3,12),b=ri(3,9);return{q:a+' × '+b+' = ?',a:a*b};},function(){const b=ri(3,9),q=ri(3,9);return{q:(b*q)+' ÷ '+b+' = ?',a:q};}])();}
+ muldiv:function(){return pick([function(){const a=ri(3,12),b=ri(3,9);return{q:a+' × '+b+' = ?',a:a*b};},function(){const b=ri(3,9),q=ri(3,9);return{q:(b*q)+' ÷ '+b+' = ?',a:q};}])();},
+ measurement:function(){return pick([function(){const m=ri(2,9);return{q:m+' m = ? cm',a:m*100};},function(){const cm=ri(3,40);return{q:cm+' cm = ? mm',a:cm*10};},function(){const kg=ri(2,9);return{q:kg+' kg = ? g',a:kg*1000};}])();},
+ time:function(){return pick([function(){const h=ri(2,8);return{q:h+' hours = ? minutes',a:h*60};},function(){const w=ri(2,8);return{q:w+' weeks = ? days',a:w*7};},function(){const d=ri(2,9);return{q:d+' days = ? hours',a:d*24};}])();},
+ data:function(){const vals=[ri(2,12),ri(2,12),ri(2,12),ri(2,12)];return pick([{q:'Total: '+vals.join(' + ')+' = ?',a:vals.reduce((a,b)=>a+b,0)},{q:'Range (largest − smallest) of '+vals.join(', ')+' = ?',a:Math.max.apply(null,vals)-Math.min.apply(null,vals)}]);},
+ money:function(){return pick([function(){const p=ri(3,9),q=ri(2,6);return{q:p+' × '+q+' (giá ×.000₫, nhập số nghìn)',a:p*q};},function(){const cost=ri(12,45),paid=pick([50,100]);return{q:paid+' − '+cost+' (tiền thừa, nghìn₫)',a:paid-cost};}])();}
 };
 
 /* ---------- UNITS ---------- */
@@ -721,9 +909,13 @@ const UNITS = {
  placevalue:{icon:'🔢', name:'Place Value',     nameVn:'Giá trị &amp; phép tính', grade:'G4–5', sub:'Giá trị theo hàng • cộng/trừ • làm tròn • so sánh',     gens:PLACE_GENS},
  fractions: {icon:'🍕', name:'Fractions',       nameVn:'Phân số',           grade:'G4–5', sub:'Phân số • bằng nhau • so sánh • cộng/trừ cùng mẫu',    gens:FRAC_GENS},
  decimals:  {icon:'🔟', name:'Decimals',        nameVn:'Số thập phân',      grade:'G5',   sub:'Hàng thập phân • so sánh • làm tròn • cộng/trừ',       gens:DEC_GENS},
- muldiv:    {icon:'✖️', name:'Multiplication &amp; Division', nameVn:'Nhân &amp; Chia', grade:'G4–5', sub:'Nhân chia • ước/bội • chia có dư • toán đố',  gens:MD_GENS}
+ muldiv:    {icon:'✖️', name:'Multiplication &amp; Division', nameVn:'Nhân &amp; Chia', grade:'G4–5', sub:'Nhân chia • ước/bội • chia có dư • toán đố',  gens:MD_GENS},
+ measurement:{icon:'📏', name:'Measurement', nameVn:'Đo lường &amp; đơn vị', grade:'G4–5', sub:'Độ dài • khối lượng • dung tích • đổi đơn vị', gens:MEAS_GENS},
+ time:      {icon:'⏰', name:'Time &amp; Calendar', nameVn:'Thời gian &amp; lịch', grade:'G4–5', sub:'Xem giờ • đổi đơn vị • khoảng thời gian • lịch', gens:TIME_GENS},
+ data:      {icon:'📊', name:'Data &amp; Graphs', nameVn:'Số liệu &amp; biểu đồ', grade:'G4–5', sub:'Biểu đồ cột/tranh • trung bình • khoảng • số trội', gens:DATA_GENS},
+ money:     {icon:'💰', name:'Money', nameVn:'Tiền tệ', grade:'G4–5', sub:'Đọc tiền • tổng tiền • tiền thừa • so sánh giá', gens:MONEY_GENS}
 };
-const UNIT_ORDER = ['geometry','placevalue','fractions','decimals','muldiv'];
+const UNIT_ORDER = ['geometry','placevalue','fractions','decimals','muldiv','measurement','time','data','money'];
 </script>
 <script>
 /* ================= STATE ================= */
