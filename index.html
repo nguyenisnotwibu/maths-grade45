@@ -127,7 +127,7 @@ section.topic.active{display:block;animation:fade .35s}
 /* ---------- modal ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(20,40,70,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
 .modal-bg.show{display:flex}
-.modal{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:26px;text-align:center;animation:fade .3s}
+.modal{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:26px;text-align:center;animation:fade .3s;max-height:calc(100vh - 32px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal h3{color:var(--blue);font-size:22px;margin-bottom:4px}
 .modal p{color:var(--mut);font-size:14px;margin-bottom:14px}
 .modal input{width:100%;font-family:inherit;font-size:16px;font-weight:700;padding:11px 14px;border:2.5px solid #d7e7f8;border-radius:12px;margin-bottom:10px;outline-color:var(--blue2)}
