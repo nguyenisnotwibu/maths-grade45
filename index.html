@@ -1044,6 +1044,7 @@ function renderPractice(){
       + '<div class="opts">'+q.opts.map((o,oi)=>'<button onclick="answer('+i+','+oi+',this)">'+o+'</button>').join('')+'</div>'
       + '<div class="explain" id="ex'+i+'"></div></div>';
   });
+  html += '<div style="text-align:center;margin:24px 0 8px"><button onclick="document.getElementById(\'finishBtn\').click()" style="font-family:inherit;font-size:18px;font-weight:800;color:#fff;background:linear-gradient(180deg,#ff9a3d,#f97316);border:none;border-radius:14px;padding:15px 36px;cursor:pointer;box-shadow:0 4px 0 #c75a11">🏁 Nộp bài / Finish</button><div style="color:var(--mut);font-size:13px;margin-top:8px">Làm xong tất cả câu rồi bấm đây để xem kết quả &amp; lời giải nhé!</div></div>';
   $('practiceWrap').innerHTML = html;
 }
 
