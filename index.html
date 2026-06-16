@@ -233,8 +233,9 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:18px}
 <section class="topic" id="topic-board">
   <div class="topic-head"><h2>🏆 Kết quả &amp; Bảng xếp hạng</h2><div class="sub">Results &amp; Leaderboard</div></div>
   <div id="resultArea"><div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả, lời giải chi tiết và lưu vào bảng xếp hạng nhé!</div></div>
-  <h3 style="color:var(--navy);margin:18px 0 10px">🥇 Bảng xếp hạng (trên thiết bị này)</h3>
+  <h3 style="color:var(--navy);margin:18px 0 10px">🥇 Bảng xếp hạng — Tổng sao toàn lớp</h3>
   <div id="boardWrap"></div>
+  <div id="historyWrap"></div>
   <div id="reviewSection" style="display:none">
     <h3 style="color:var(--navy);margin:24px 0 4px">📚 Giải thích chi tiết / Detailed review</h3>
     <p style="color:var(--mut);font-size:14px">Mỗi câu gồm: 📖 Vocabulary (từ vựng) • 💡 Why (lý do) • ✍️ How to write it (cách trình bày).</p>
@@ -909,13 +910,71 @@ const UNITS = {
  placevalue:{icon:'🔢', name:'Place Value',     nameVn:'Giá trị &amp; phép tính', grade:'G4–5', sub:'Giá trị theo hàng • cộng/trừ • làm tròn • so sánh',     gens:PLACE_GENS},
  fractions: {icon:'🍕', name:'Fractions',       nameVn:'Phân số',           grade:'G4–5', sub:'Phân số • bằng nhau • so sánh • cộng/trừ cùng mẫu',    gens:FRAC_GENS},
  decimals:  {icon:'🔟', name:'Decimals',        nameVn:'Số thập phân',      grade:'G5',   sub:'Hàng thập phân • so sánh • làm tròn • cộng/trừ',       gens:DEC_GENS},
- muldiv:    {icon:'✖️', name:'Multiplication &amp; Division', nameVn:'Nhân &amp; Chia', grade:'G4–5', sub:'Nhân chia • ước/bội • chia có dư • toán đố',  gens:MD_GENS},
- measurement:{icon:'📏', name:'Measurement', nameVn:'Đo lường &amp; đơn vị', grade:'G4–5', sub:'Độ dài • khối lượng • dung tích • đổi đơn vị', gens:MEAS_GENS},
- time:      {icon:'⏰', name:'Time &amp; Calendar', nameVn:'Thời gian &amp; lịch', grade:'G4–5', sub:'Xem giờ • đổi đơn vị • khoảng thời gian • lịch', gens:TIME_GENS},
- data:      {icon:'📊', name:'Data &amp; Graphs', nameVn:'Số liệu &amp; biểu đồ', grade:'G4–5', sub:'Biểu đồ cột/tranh • trung bình • khoảng • số trội', gens:DATA_GENS},
+ muldiv:    {icon:'✖️', name:'Multiplication & Division', nameVn:'Nhân & Chia', grade:'G4–5', sub:'Nhân chia • ước/bội • chia có dư • toán đố',  gens:MD_GENS},
+ measurement:{icon:'📏', name:'Measurement', nameVn:'Đo lường & đơn vị', grade:'G4–5', sub:'Độ dài • khối lượng • dung tích • đổi đơn vị', gens:MEAS_GENS},
+ time:      {icon:'⏰', name:'Time & Calendar', nameVn:'Thời gian & lịch', grade:'G4–5', sub:'Xem giờ • đổi đơn vị • khoảng thời gian • lịch', gens:TIME_GENS},
+ data:      {icon:'📊', name:'Data & Graphs', nameVn:'Số liệu & biểu đồ', grade:'G4–5', sub:'Biểu đồ cột/tranh • trung bình • khoảng • số trội', gens:DATA_GENS},
  money:     {icon:'💰', name:'Money', nameVn:'Tiền tệ', grade:'G4–5', sub:'Đọc tiền • tổng tiền • tiền thừa • so sánh giá', gens:MONEY_GENS}
 };
 const UNIT_ORDER = ['geometry','placevalue','fractions','decimals','muldiv','measurement','time','data','money'];
+</script>
+<!-- Firebase SDK (online leaderboard). Nếu chưa cấu hình, site tự chạy chế độ localStorage. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ================= CLOUD DATA LAYER ================= */
+/* 👉 DÁN config Firebase của bạn vào đây để bật bảng xếp hạng online cho cả lớp.
+   Lấy ở Firebase Console → Project settings → Your apps → SDK setup (Config).
+   Để trống {} thì site vẫn chạy bình thường nhưng xếp hạng chỉ trong máy này. */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCoKAaeDIucAW19_79uP_PLH8OmvQAl9I8",
+  authDomain: "maths-grade45.firebaseapp.com",
+  databaseURL: "https://maths-grade45-default-rtdb.firebaseio.com",
+  projectId: "maths-grade45",
+  storageBucket: "maths-grade45.firebasestorage.app",
+  messagingSenderId: "189762022645",
+  appId: "1:189762022645:web:039b295943062a5fdb69bc"
+};
+
+function lsGet(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+
+const Cloud = {
+  ready:false, db:null,
+  init(){
+    try{
+      if(typeof firebase!=='undefined' && FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey){
+        firebase.initializeApp(FIREBASE_CONFIG);
+        this.db = firebase.database();
+        this.ready = true;
+      }
+    }catch(e){ this.ready=false; }
+    return this.ready;
+  },
+  async addPlay(rec){
+    if(this.ready){ try{ await this.db.ref('plays').push(rec); return true; }catch(e){} }
+    const arr = lsGet('gq_plays',[]); arr.push(rec); lsSet('gq_plays', arr.slice(-800)); return false;
+  },
+  async getPlays(){
+    if(this.ready){
+      try{ const snap = await this.db.ref('plays').orderByKey().limitToLast(4000).once('value');
+        const v = snap.val()||{}; return Object.keys(v).map(k=>v[k]); }catch(e){}
+    }
+    return lsGet('gq_plays',[]);
+  }
+};
+
+/* gộp các lượt chơi theo học sinh (theo SĐT) để tính TỔNG SAO + xếp hạng */
+function aggregatePlays(plays){
+  const by={};
+  plays.forEach(e=>{
+    const k = (e.p||e.n||'?');
+    if(!by[k]) by[k]={n:e.n,p:e.p,stars:0,sessions:0,best:0,lastDate:e.date||''};
+    const o=by[k]; const s=+e.stars||0;
+    o.stars+=s; o.sessions++; o.best=Math.max(o.best,s); o.n=e.n||o.n; if(e.date) o.lastDate=e.date;
+  });
+  return Object.keys(by).map(k=>by[k]).sort((a,b)=> b.stars-a.stars || b.best-a.best);
+}
 </script>
 <script>
 /* ================= STATE ================= */
@@ -1016,6 +1075,7 @@ document.querySelectorAll('.tab').forEach(tb=>{
     document.querySelectorAll('section.topic').forEach(x=>x.classList.remove('active'));
     tb.classList.add('active');
     $('topic-'+tb.dataset.t).classList.add('active');
+    if(tb.dataset.t==='board') renderBoard(window._lastEntry);
     window.scrollTo({top:0,behavior:'smooth'});
   });
 });
@@ -1024,7 +1084,7 @@ document.querySelectorAll('.tab').forEach(tb=>{
 function loadStudent(){
   try{ return JSON.parse(localStorage.getItem('gq_student')||'null'); }catch(e){ return null; }
 }
-function showStudent(st){ $('chipName').textContent = st ? st.n : '—'; }
+function showStudent(st){ $('chipName').textContent = st ? (st.n + ' · ⭐' + getLifetime(st.p)) : '—'; }
 $('startBtn').addEventListener('click',()=>{
   const n = $('inpName').value.trim(), p = $('inpPhone').value.trim();
   if(n.length < 2){ $('infoErr').textContent = '⚠️ Hãy nhập họ tên đầy đủ nhé! / Please enter your full name.'; return; }
@@ -1038,23 +1098,45 @@ $('startBtn').addEventListener('click',()=>{
 $('studentChip').addEventListener('click',()=> $('infoModal').classList.add('show'));
 $('unitChip').addEventListener('click',()=> $('unitModal').classList.add('show'));
 
+/* ===== TỔNG SAO (lifetime) + GHI NHẬN PHIÊN CHƠI ===== */
+function lifeKey(p){ return 'gq_life_'+(p||'x'); }
+function getLifetime(p){ return +lsGet(lifeKey(p),0)||0; }
+function bumpLifetime(p,stars){ lsSet(lifeKey(p), getLifetime(p)+(+stars||0)); }
+function refreshLifetime(){ const st=loadStudent(); if(st) showStudent(st); }
+
+async function recordPlay(game, stars, extra){
+  const st = loadStudent(); if(!st) return;
+  stars = Math.max(0, Math.round(stars||0));
+  const rec = Object.assign({
+    n:st.n, p:st.p, unit:(S.unit?UNITS[S.unit].name:''), unitKey:S.unit||'',
+    game:game, stars:stars, ts:Date.now(),
+    date:new Date().toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'})
+  }, extra||{});
+  bumpLifetime(st.p, stars); refreshLifetime();
+  try{ await Cloud.addPlay(rec); }catch(e){}
+}
+/* cộng sao cho game + ghi nhận lượt chơi */
+function awardGame(game, stars){
+  stars = Math.max(0, Math.round(stars||0));
+  if(stars>0){ S.score += stars; updateStats(); }
+  recordPlay(game, stars);
+}
+
 /* ================= FINISH / RESULTS / REVIEW ================= */
 function loadBoard(){ try{ return JSON.parse(localStorage.getItem('gq_board')||'[]'); }catch(e){ return []; } }
 
-$('finishBtn').addEventListener('click',()=>{
+$('finishBtn').addEventListener('click', async ()=>{
   const st = loadStudent();
   if(!st){ $('infoModal').classList.add('show'); return; }
   if(S.done===0 && !confirm('Bạn chưa làm câu nào! Vẫn muốn nộp bài? / You haven\'t answered anything yet — submit anyway?')) return;
   const acc = S.done ? Math.round(S.correct/S.done*100) : 0;
+  const practiceStars = S.correct * 10;   // chỉ tính sao của phần luyện tập (game đã ghi riêng)
   const entry = {n:st.n, p:st.p, unit:UNITS[S.unit].name, unitKey:S.unit, score:S.score, c:S.correct, d:S.done, best:S.best, acc:acc, date:new Date().toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'})};
-  const board = loadBoard();
-  board.push(entry);
-  board.sort((a,b)=> b.score - a.score);
-  localStorage.setItem('gq_board', JSON.stringify(board.slice(0,50)));
+  await recordPlay('Luyện tập', practiceStars, {correct:S.correct, done:S.done, acc:acc, best:S.best});
   renderResult(entry);
-  renderBoard(entry);
   renderReview();
   document.querySelector('.tab[data-t="board"]').click();
+  renderBoard(entry);
 });
 
 function resultText(e){
@@ -1093,18 +1175,34 @@ function fallbackCopy(txt,done){
   ta.select(); try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done();
 }
 
-function renderBoard(me){
-  let board = loadBoard();
-  // chỉ hiện xếp hạng của unit đang chọn
-  if(S.unit) board = board.filter(e=> (e.unitKey||'geometry')===S.unit);
-  if(!board.length){ $('boardWrap').innerHTML = '<div class="lesson" style="text-align:center">Chưa có ai trên bảng xếp hạng của unit này — hãy là người đầu tiên! 🚀</div>'; return; }
-  board.sort((a,b)=> b.score - a.score);
-  const medal = ['🥇','🥈','🥉'];
-  let rows = board.slice(0,20).map((e,i)=>{
-    const isMe = me && e.n===me.n && e.date===me.date && e.score===me.score;
-    return '<tr'+(isMe?' class="me"':'')+'><td>'+(medal[i]||(i+1))+'</td><td>'+e.n+'</td><td>'+e.p+'</td><td><b>'+e.score+'⭐</b></td><td>'+e.c+'/'+e.d+' ('+(e.acc||0)+'%)</td><td>'+e.date+'</td></tr>';
-  }).join('');
-  $('boardWrap').innerHTML = '<div style="text-align:center;color:var(--mut);font-size:13.5px;margin-bottom:8px">📚 Unit: <b>'+(S.unit?UNITS[S.unit].name:'')+'</b></div><table class="board-table"><tr><th>#</th><th>Tên / Name</th><th>SĐT / Phone</th><th>Điểm</th><th>Đúng</th><th>Thời gian</th></tr>'+rows+'</table>';
+async function renderBoard(me){
+  $('boardWrap').innerHTML = '<div class="lesson" style="text-align:center">⏳ Đang tải bảng xếp hạng…</div>';
+  const st = loadStudent();
+  let plays = [];
+  try{ plays = await Cloud.getPlays(); }catch(e){ plays = lsGet('gq_plays',[]); }
+  const agg = aggregatePlays(plays);
+  const mode = Cloud.ready ? '🌐 Toàn lớp (online)' : '💻 Trên thiết bị này';
+  if(!agg.length){
+    $('boardWrap').innerHTML = '<div class="lesson" style="text-align:center">Chưa có ai trên bảng xếp hạng — hãy là người đầu tiên! 🚀</div>';
+  } else {
+    const medal = ['🥇','🥈','🥉'];
+    const rows = agg.slice(0,20).map((e,i)=>{
+      const isMe = st && (e.p||'')===st.p;
+      return '<tr'+(isMe?' class="me"':'')+'><td>'+(medal[i]||(i+1))+'</td><td>'+e.n+'</td><td><b>'+e.stars+'⭐</b></td><td>'+e.sessions+'</td><td>'+e.best+'⭐</td></tr>';
+    }).join('');
+    $('boardWrap').innerHTML = '<div style="text-align:center;color:var(--mut);font-size:13.5px;margin-bottom:8px">🏆 Xếp theo TỔNG SAO • '+mode+'</div>'
+      + '<table class="board-table"><tr><th>#</th><th>Tên / Name</th><th>Tổng ⭐</th><th>Lượt</th><th>Cao nhất</th></tr>'+rows+'</table>';
+  }
+  // Lịch sử các phiên của học sinh hiện tại
+  if(st){
+    const mine = plays.filter(e=>(e.p||'')===st.p).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,12);
+    let h;
+    if(mine.length){
+      h = '<table class="board-table"><tr><th>Hoạt động</th><th>Chủ đề</th><th>⭐</th><th>Thời gian</th></tr>'
+        + mine.map(e=>'<tr><td>'+(e.game||'')+'</td><td>'+(e.unit||'')+'</td><td><b>'+(e.stars||0)+'</b></td><td>'+(e.date||'')+'</td></tr>').join('') + '</table>';
+    } else { h = '<div class="lesson" style="text-align:center">Chưa có lượt chơi nào được lưu.</div>'; }
+    $('historyWrap').innerHTML = '<h3 style="color:var(--blue);text-align:center;margin:20px 0 8px">📜 Lịch sử của '+st.n+' — Tổng ⭐'+getLifetime(st.p)+'</h3>'+h;
+  } else { $('historyWrap').innerHTML=''; }
 }
 
 let reviewFilter = 'all';
@@ -1139,6 +1237,11 @@ document.querySelectorAll('.filter-row button').forEach(b=>{
 });
 
 /* ================= GAMES (theo unit) ================= */
+function gameCard(title, desc, statId, areaId, startFn){
+  return '<div class="game-card"><h3>'+title+'</h3><div class="gdesc">'+desc+'</div>'
+    + '<div class="game-stat" id="'+statId+'"></div>'
+    + '<div class="game-play" id="'+areaId+'"><button class="gbtn" onclick="'+startFn+'">▶ Bắt đầu / Start</button></div></div>';
+}
 function renderGames(){
   const u = UNITS[S.unit];
   let html = '';
@@ -1152,6 +1255,14 @@ function renderGames(){
     + '<div class="gdesc">45 giây — trả lời nhanh các phép tính của unit này! +5 ⭐ mỗi câu đúng.<br>Answer as many as you can in 45 seconds!</div>'
     + '<div class="game-stat">⏱ <span id="spTime">45</span>s &nbsp;|&nbsp; Correct: <span id="spScore">0</span></div>'
     + '<div class="game-play" id="spArea"><button class="gbtn" onclick="startSpeed()">▶ Start!</button></div></div>';
+  html += gameCard('🏃 Quiz Rush', '10 câu trắc nghiệm ngẫu nhiên. +5⭐ mỗi câu đúng.<br>10 random multiple-choice questions.', 'qrStat','qrArea','startQuizRush()');
+  html += gameCard('❤️ Survival – 3 mạng', 'Trả lời liên tục, sai 3 lần là thua. +3⭐ mỗi câu đúng.<br>Keep going — 3 wrong answers ends the game.', 'svStat','svArea','startSurvival()');
+  html += gameCard('🔥 Streak Challenge', 'Đúng liên tiếp càng nhiều càng tốt; sai 1 câu là hết. +2⭐ mỗi câu.<br>Build the longest correct streak!', 'stkStat','stkArea','startStreak()');
+  html += gameCard('⚖️ Đúng / Sai chớp nhoáng', '30 giây — đáp án đề xuất Đúng hay Sai? +3⭐ mỗi câu đúng.<br>True or False blitz — 30 seconds.', 'tfStat','tfArea','startTF()');
+  html += '<div class="game-card"><h3>🧠 Memory Match (câu–đáp)</h3>'
+    + '<div class="gdesc">Lật thẻ ghép phép tính với kết quả đúng. Đủ 6 cặp +25⭐!<br>Match each question with its answer.</div>'
+    + '<div class="game-stat" id="mmStat">Cặp / Pairs: 0/6</div>'
+    + '<div class="mem-grid" id="mmGrid"></div><button class="gbtn purple" onclick="startMatch()">🔄 Ván mới / New game</button></div>';
   $('gamesWrap').innerHTML = html;
   if(u.shapeMatch){ $('memNew').addEventListener('click', memNew); memNew(); }
 }
@@ -1216,7 +1327,128 @@ function startSpeed(){
   },1000);
 }
 
+/* ================= MINI-GAME ENGINE (dùng chung mọi unit) ================= */
+function gq(){   // lấy 1 câu trắc nghiệm ngẫu nhiên từ generators của unit hiện tại
+  for(let t=0;t<12;t++){ try{ const q=pick(UNITS[S.unit].gens)(); if(q&&q.opts&&q.opts.length>=2) return q; }catch(e){} }
+  return null;
+}
+function renderQuiz(areaId, q, onPick){
+  const c = $(areaId); if(!c) return;
+  c.innerHTML = '<div class="qtext" style="font-size:16.5px">'+q.q+'</div>'
+    + (q.svg ? '<div class="qfig">'+q.svg+'</div>' : '')
+    + '<div class="opts" id="'+areaId+'_opts"></div>';
+  const ob = $(areaId+'_opts');
+  ob.innerHTML = q.opts.map((o,i)=>'<button data-i="'+i+'">'+o+'</button>').join('');
+  Array.prototype.forEach.call(ob.querySelectorAll('button'), b=>{
+    b.addEventListener('click',()=>{
+      const i = +b.dataset.i, ok = i===q.a;
+      Array.prototype.forEach.call(ob.querySelectorAll('button'), (x,xi)=>{ x.disabled=true; if(xi===q.a) x.classList.add('correct'); else if(xi===i) x.classList.add('wrong'); });
+      onPick(ok);
+    });
+  });
+}
+
+/* ---- Quiz Rush: 10 câu ---- */
+let qr=null;
+function startQuizRush(){ qr={i:0,total:10,correct:0}; qrNext(); }
+function qrNext(){
+  if(qr.i>=qr.total){ const stars=qr.correct*5; $('qrStat').textContent='Đúng '+qr.correct+'/'+qr.total;
+    $('qrArea').innerHTML='<p style="font-weight:800;font-size:17px">🏁 Hoàn thành! Đúng '+qr.correct+'/'+qr.total+' (+'+stars+'⭐)</p><button class="gbtn" onclick="startQuizRush()">▶ Chơi lại / Play again</button>';
+    awardGame('Quiz Rush',stars); return; }
+  $('qrStat').textContent='Câu '+(qr.i+1)+'/'+qr.total+' • Đúng '+qr.correct;
+  const q=gq(); if(!q){ $('qrArea').innerHTML='⚠️ Lỗi tạo câu hỏi.'; return; }
+  renderQuiz('qrArea',q,ok=>{ if(ok)qr.correct++; qr.i++; setTimeout(qrNext,750); });
+}
+
+/* ---- Survival: 3 mạng ---- */
+let sv=null;
+function startSurvival(){ sv={lives:3,correct:0}; svNext(); }
+function svNext(){
+  $('svStat').innerHTML='❤️'.repeat(sv.lives)+'🤍'.repeat(3-sv.lives)+' • Đúng '+sv.correct;
+  const q=gq(); if(!q)return;
+  renderQuiz('svArea',q,ok=>{
+    if(ok){ sv.correct++; setTimeout(svNext,650); }
+    else { sv.lives--;
+      if(sv.lives<=0){ const stars=sv.correct*3; $('svStat').innerHTML='💀 Hết mạng';
+        $('svArea').innerHTML='<p style="font-weight:800;font-size:17px">💀 Hết mạng! Đúng '+sv.correct+' câu (+'+stars+'⭐)</p><button class="gbtn" onclick="startSurvival()">▶ Chơi lại / Play again</button>';
+        awardGame('Survival',stars); }
+      else setTimeout(svNext,750); }
+  });
+}
+
+/* ---- Streak Challenge ---- */
+let stk=null;
+function startStreak(){ stk={n:0}; stkNext(); }
+function stkNext(){
+  $('stkStat').textContent='🔥 Chuỗi / Streak: '+stk.n;
+  const q=gq(); if(!q)return;
+  renderQuiz('stkArea',q,ok=>{
+    if(ok){ stk.n++; setTimeout(stkNext,650); }
+    else { const stars=stk.n*2;
+      $('stkArea').innerHTML='<p style="font-weight:800;font-size:17px">❌ Sai rồi! Chuỗi đúng: '+stk.n+' (+'+stars+'⭐)</p><button class="gbtn" onclick="startStreak()">▶ Thử lại / Try again</button>';
+      awardGame('Streak',stars); }
+  });
+}
+
+/* ---- Đúng / Sai chớp nhoáng (30s) ---- */
+let tf=null;
+function updateTFStat(){ if($('tfStat')) $('tfStat').textContent='⏱ '+(tf?tf.time:30)+'s • Đúng '+(tf?tf.correct:0); }
+function startTF(){
+  if(tf && tf.timer) return;
+  tf={time:30,correct:0,timer:null}; updateTFStat();
+  tf.timer=setInterval(()=>{ tf.time--;
+    if(tf.time<=0){ clearInterval(tf.timer); tf.timer=null; const stars=tf.correct*3; updateTFStat();
+      $('tfArea').innerHTML='<p style="font-weight:800;font-size:17px">⏰ Hết giờ! Đúng '+tf.correct+' câu (+'+stars+'⭐)</p><button class="gbtn" onclick="startTF()">▶ Chơi lại / Play again</button>';
+      awardGame('True/False',stars); }
+    else updateTFStat();
+  },1000);
+  tfNext();
+}
+function tfNext(){
+  if(!tf || !tf.timer) return;
+  const q=gq(); if(!q)return;
+  const showCorrect=Math.random()<0.5;
+  const others=[]; for(let i=0;i<q.opts.length;i++) if(i!==q.a) others.push(i);
+  const shownIdx = showCorrect ? q.a : (others.length?pick(others):q.a);
+  const isTrue = shownIdx===q.a;
+  $('tfArea').innerHTML='<div class="qtext" style="font-size:15.5px">'+q.q+'</div>'
+    + (q.svg ? '<div class="qfig">'+q.svg+'</div>' : '')
+    + '<div style="margin:10px 0;font-weight:800">Đáp án đề xuất / Proposed: <span style="color:#2f6fd0">'+q.opts[shownIdx]+'</span></div>'
+    + '<div class="choice-row"><button class="gbtn" id="tfT">✔ Đúng/True</button><button class="gbtn" id="tfF" style="background:#ef5d60;box-shadow:0 3px 0 #c4393c">✘ Sai/False</button></div>';
+  const ans=g=>{ if(!tf||!tf.timer)return; if(g===isTrue) tf.correct++; updateTFStat(); tfNext(); };
+  $('tfT').addEventListener('click',()=>ans(true));
+  $('tfF').addEventListener('click',()=>ans(false));
+}
+
+/* ---- Memory Match: ghép câu – đáp (dùng SPEED) ---- */
+let mm=null;
+function startMatch(){
+  const pairs=[], seen={}; let guard=0;
+  while(pairs.length<6 && guard<400){ guard++;
+    let it; try{ it=SPEED[S.unit](); }catch(e){ continue; }
+    const a=String(it.a); if(seen[a]||a==='undefined'||a==='NaN') continue; seen[a]=1;
+    pairs.push({ q:String(it.q).replace(/\(.*?\)/g,'').replace(/=\s*\?/,'').replace(/\?/,'').trim(), a:a });
+  }
+  mm={pairs:pairs, first:null, lock:false, matched:0};
+  const cards=[]; pairs.forEach((p,id)=>{ cards.push({id:id,t:p.q}); cards.push({id:id,t:p.a}); });
+  cards.sort(()=>Math.random()-.5);
+  $('mmStat').textContent='Cặp / Pairs: 0/'+pairs.length;
+  $('mmGrid').innerHTML=cards.map(c=>'<button class="mem-card" style="font-size:12.5px;min-height:58px;padding:4px" data-id="'+c.id+'" data-t="'+encodeURIComponent(c.t)+'">?</button>').join('');
+  Array.prototype.forEach.call($('mmGrid').querySelectorAll('.mem-card'), b=>b.addEventListener('click',()=>mmFlip(b)));
+}
+function mmFlip(el){
+  if(!mm || mm.lock || el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  el.classList.add('flipped'); el.innerHTML=decodeURIComponent(el.dataset.t);
+  if(!mm.first){ mm.first=el; return; }
+  const a=mm.first, b=el; mm.first=null;
+  if(a.dataset.id===b.dataset.id){ a.classList.add('matched'); b.classList.add('matched'); mm.matched++;
+    $('mmStat').textContent='Cặp / Pairs: '+mm.matched+'/'+mm.pairs.length;
+    if(mm.matched===mm.pairs.length){ awardGame('Memory Match',25); setTimeout(()=>alert('🎉 Hoàn thành! +25⭐'),200); } }
+  else { mm.lock=true; setTimeout(()=>{ [a,b].forEach(x=>{ x.classList.remove('flipped'); x.textContent='?'; }); mm.lock=false; }, 750); }
+}
+
 /* ================= INIT ================= */
+Cloud.init();
 renderUnitGrid();
 (function init(){
   const st = loadStudent();
