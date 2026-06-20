@@ -1624,6 +1624,7 @@ function mmFlip(el){
 const AUD = {
   ctx:null, master:null, sfx:null, mus:null,
   mode:(function(){ const m=parseInt(lsGet('gq_audio',0),10); return isNaN(m)?0:m; })(), // 0=âm thanh+nhạc, 1=chỉ hiệu ứng, 2=tắt
+  musicPaused: !!lsGet('gq_musicpause', false),
   _timer:null, _unit:null, _step:0,
   PRESETS:{
     geometry:{root:261.63,wave:'sine',beat:1000,scale:[0,2,4,7,9]},
@@ -1655,7 +1656,7 @@ const AUD = {
   wrong(){ if(this.mode>=2) return; this.resume(); this.tone(311.13,0,0.18,'triangle',0.4); this.tone(233.08,0.13,0.3,'triangle',0.4); },
   win(){ if(this.mode>=2) return; this.resume(); [523.25,659.25,783.99,1046.50].forEach((f,i)=>this.tone(f,i*0.1,0.28,'sine',0.45)); },
   onUnit(k){ this._unit=k; if(this.mode===0 && this.ctx) this.startMusic(k); },
-  startMusic(k){ if(this.mode!==0) return; this.resume(); if(!this.ctx) return; this.stopMusic();
+  startMusic(k){ if(this.mode!==0 || this.musicPaused) return; this.resume(); if(!this.ctx) return; this.stopMusic();
     const p=this.PRESETS[k]||this.PRESETS.geometry; this._step=0;
     const play=()=>{ if(this.mode!==0) return; const sc=p.scale; const deg=sc[Math.floor(Math.random()*sc.length)];
       const oct=(Math.random()<0.28)?2:1; const freq=p.root*Math.pow(2,deg/12)*oct;
@@ -1664,12 +1665,24 @@ const AUD = {
       this._step++; };
     play(); this._timer=setInterval(play,p.beat); },
   stopMusic(){ if(this._timer){ clearInterval(this._timer); this._timer=null; } },
-  setMode(m){ this.mode=m; lsSet('gq_audio',m); if(m===0){ this.startMusic(this._unit||S.unit); } else { this.stopMusic(); } this.updateBtn(); },
+  setMode(m){ this.mode=m; lsSet('gq_audio',m); if(m===0){ this.startMusic(this._unit||S.unit); } else { this.stopMusic(); } this.updateBtn(); this.updateMusicBtn(); },
   cycle(){ this.resume(); this.setMode((this.mode+1)%3); },
+  toggleMusic(){ this.resume(); this.musicPaused=!this.musicPaused; lsSet('gq_musicpause', this.musicPaused);
+    if(this.musicPaused){ this.stopMusic(); } else if(this.mode===0){ this.startMusic(this._unit||S.unit); }
+    this.updateMusicBtn(); },
   updateBtn(){ const b=document.getElementById('soundBtn'); if(!b) return; const L=['🔊 Âm thanh + nhạc','🔈 Chỉ hiệu ứng','🔇 Tắt tiếng']; b.textContent=L[this.mode]; },
-  mountBtn(){ if(document.getElementById('soundBtn')) return; const b=document.createElement('button'); b.id='soundBtn';
-    b.style.cssText='position:fixed;right:16px;bottom:16px;z-index:60;font-family:inherit;font-weight:800;font-size:13.5px;border:none;border-radius:999px;padding:10px 16px;cursor:pointer;background:#2f7fd1;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)';
-    b.onclick=()=>AUD.cycle(); document.body.appendChild(b); this.updateBtn(); }
+  updateMusicBtn(){ const b=document.getElementById('musicBtn'); if(!b) return;
+    const playing = this.mode===0 && !this.musicPaused;
+    b.textContent = playing ? '⏸️ Tạm dừng nhạc' : '🎵 Bật nhạc nền';
+    b.style.opacity = (this.mode===0) ? '1' : '0.45'; },
+  mountBtn(){
+    if(!document.getElementById('musicBtn')){ const m=document.createElement('button'); m.id='musicBtn';
+      m.style.cssText='position:fixed;right:16px;bottom:60px;z-index:60;font-family:inherit;font-weight:800;font-size:13.5px;border:none;border-radius:999px;padding:10px 16px;cursor:pointer;background:#7b5ce0;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+      m.onclick=()=>AUD.toggleMusic(); document.body.appendChild(m); }
+    if(!document.getElementById('soundBtn')){ const b=document.createElement('button'); b.id='soundBtn';
+      b.style.cssText='position:fixed;right:16px;bottom:16px;z-index:60;font-family:inherit;font-weight:800;font-size:13.5px;border:none;border-radius:999px;padding:10px 16px;cursor:pointer;background:#2f7fd1;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+      b.onclick=()=>AUD.cycle(); document.body.appendChild(b); }
+    this.updateBtn(); this.updateMusicBtn(); }
 };
 function kickAudio(){ AUD.resume(); if(AUD.mode===0 && S.unit) AUD.startMusic(S.unit); document.removeEventListener('pointerdown',kickAudio); }
 document.addEventListener('pointerdown',kickAudio);
