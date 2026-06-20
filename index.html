@@ -1191,6 +1191,7 @@ function buildUnit(k){
   $('theoryWrap').innerHTML = THEORY[k];
   renderPractice();
   renderGames();
+  AUD.onUnit(k);
   $('resultArea').innerHTML = '<div class="lesson" style="text-align:center">📝 Làm bài xong, bấm <b>🏁 Nộp bài / Finish</b> ở thanh trên để xem kết quả &amp; lời giải chi tiết.<br>🎲 <b>Mỗi lần tải lại trang là một đề mới!</b></div>';
   $('reviewSection').style.display = 'none';
   $('unitClose').style.display = 'block';  // đã có unit → cho phép đóng modal khi mở lại
@@ -1229,6 +1230,7 @@ function answer(i, oi, btn){
   });
   if(ok){ S.correct++; S.streak++; S.best = Math.max(S.best,S.streak); S.score += 10; }
   else { S.streak = 0; }
+  AUD[ok?'correct':'wrong']();
   const ex = $('ex'+i);
   ex.innerHTML = (ok ? '<span class="ok">✓ Correct! Chính xác! +10⭐</span> ' : '<span class="no">✗ Not quite! Đáp án đúng: '+q.opts[q.a]+'</span> ')
     + '<br>💡 ' + q.why
@@ -1455,8 +1457,9 @@ function memFlip(el){
   if(a.dataset.id === b.dataset.id){
     a.classList.add('matched'); b.classList.add('matched');
     mem.pairs++; $('memPairs').textContent = mem.pairs;
-    if(mem.pairs===6){ S.score += 30; updateStats(); setTimeout(()=>alert('🎉 Tuyệt vời! Ghép đủ 6 cặp — +30⭐!'),200); }
+    if(mem.pairs===6){ S.score += 30; updateStats(); AUD.win(); setTimeout(()=>alert('🎉 Tuyệt vời! Ghép đủ 6 cặp — +30⭐!'),200); } else AUD.correct();
   } else {
+    AUD.wrong();
     mem.miss++; $('memMiss').textContent = mem.miss; mem.lock = true;
     setTimeout(()=>{ [a,b].forEach(x=>{ x.classList.remove('flipped'); x.textContent='?'; }); mem.lock = false; }, 750);
   }
@@ -1474,8 +1477,8 @@ function spCheck(){
   if(!sp.timer) return;
   const v = parseInt($('spInp').value,10);
   const box = $('spQ');
-  if(v===sp.ans){ sp.score++; S.score += 5; $('spScore').textContent = sp.score; updateStats(); box.classList.add('flash-ok'); }
-  else box.classList.add('flash-no');
+  if(v===sp.ans){ sp.score++; S.score += 5; $('spScore').textContent = sp.score; updateStats(); box.classList.add('flash-ok'); AUD.correct(); }
+  else { box.classList.add('flash-no'); AUD.wrong(); }
   setTimeout(()=>box.classList.remove('flash-ok','flash-no'),400);
   spNext();
 }
@@ -1512,6 +1515,7 @@ function renderQuiz(areaId, q, onPick){
     b.addEventListener('click',()=>{
       const i = +b.dataset.i, ok = i===q.a;
       Array.prototype.forEach.call(ob.querySelectorAll('button'), (x,xi)=>{ x.disabled=true; if(xi===q.a) x.classList.add('correct'); else if(xi===i) x.classList.add('wrong'); });
+      AUD[ok?'correct':'wrong']();
       onPick(ok);
     });
   });
@@ -1584,7 +1588,7 @@ function tfNext(){
     + (q.svg ? '<div class="qfig">'+q.svg+'</div>' : '')
     + '<div style="margin:10px 0;font-weight:800">Đáp án đề xuất / Proposed: <span style="color:#2f6fd0">'+q.opts[shownIdx]+'</span></div>'
     + '<div class="choice-row"><button class="gbtn" id="tfT">✔ Đúng/True</button><button class="gbtn" id="tfF" style="background:#ef5d60;box-shadow:0 3px 0 #c4393c">✘ Sai/False</button></div>';
-  const ans=g=>{ if(!tf||!tf.timer)return; if(g===isTrue) tf.correct++; updateTFStat(); tfNext(); };
+  const ans=g=>{ if(!tf||!tf.timer)return; if(g===isTrue){ tf.correct++; AUD.correct(); } else AUD.wrong(); updateTFStat(); tfNext(); };
   $('tfT').addEventListener('click',()=>ans(true));
   $('tfF').addEventListener('click',()=>ans(false));
 }
@@ -1612,12 +1616,67 @@ function mmFlip(el){
   const a=mm.first, b=el; mm.first=null;
   if(a.dataset.id===b.dataset.id){ a.classList.add('matched'); b.classList.add('matched'); mm.matched++;
     $('mmStat').textContent='Cặp / Pairs: '+mm.matched+'/'+mm.pairs.length;
-    if(mm.matched===mm.pairs.length){ awardGame('Memory Match',25); setTimeout(()=>alert('🎉 Hoàn thành! +25⭐'),200); } }
-  else { mm.lock=true; setTimeout(()=>{ [a,b].forEach(x=>{ x.classList.remove('flipped'); x.textContent='?'; }); mm.lock=false; }, 750); }
+    if(mm.matched===mm.pairs.length){ awardGame('Memory Match',25); AUD.win(); setTimeout(()=>alert('🎉 Hoàn thành! +25⭐'),200); } else AUD.correct(); }
+  else { AUD.wrong(); mm.lock=true; setTimeout(()=>{ [a,b].forEach(x=>{ x.classList.remove('flipped'); x.textContent='?'; }); mm.lock=false; }, 750); }
 }
+
+/* ================= SOUND & MUSIC (Web Audio API) ================= */
+const AUD = {
+  ctx:null, master:null, sfx:null, mus:null,
+  mode:(function(){ const m=parseInt(lsGet('gq_audio',0),10); return isNaN(m)?0:m; })(), // 0=âm thanh+nhạc, 1=chỉ hiệu ứng, 2=tắt
+  _timer:null, _unit:null, _step:0,
+  PRESETS:{
+    geometry:{root:261.63,wave:'sine',beat:1000,scale:[0,2,4,7,9]},
+    placevalue:{root:293.66,wave:'triangle',beat:1000,scale:[0,2,4,7,9]},
+    fractions:{root:349.23,wave:'sine',beat:950,scale:[0,2,4,7,9]},
+    decimals:{root:392.00,wave:'sine',beat:1000,scale:[0,2,4,7,9]},
+    muldiv:{root:220.00,wave:'triangle',beat:850,scale:[0,3,5,7,10]},
+    measurement:{root:329.63,wave:'sine',beat:1050,scale:[0,2,4,7,9]},
+    time:{root:261.63,wave:'sine',beat:1150,scale:[0,2,5,7,9]},
+    data:{root:233.08,wave:'triangle',beat:950,scale:[0,2,4,7,9]},
+    money:{root:277.18,wave:'sine',beat:900,scale:[0,2,4,7,9]},
+    percent:{root:311.13,wave:'sine',beat:1000,scale:[0,2,4,7,9]},
+    negative:{root:196.00,wave:'sine',beat:1150,scale:[0,3,5,7,10]},
+    pattern:{root:392.00,wave:'triangle',beat:850,scale:[0,2,4,7,9]},
+    mixed:{root:349.23,wave:'sine',beat:950,scale:[0,2,4,7,9]}
+  },
+  init(){ if(this.ctx) return; try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    this.ctx=new AC();
+    this.master=this.ctx.createGain(); this.master.gain.value=0.9; this.master.connect(this.ctx.destination);
+    this.sfx=this.ctx.createGain(); this.sfx.gain.value=0.45; this.sfx.connect(this.master);
+    this.mus=this.ctx.createGain(); this.mus.gain.value=0.10; this.mus.connect(this.master);
+  }catch(e){} },
+  resume(){ this.init(); if(this.ctx&&this.ctx.state==='suspended'){ try{ this.ctx.resume(); }catch(e){} } },
+  tone(freq,start,dur,type,peak,target){ if(!this.ctx) return; const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'sine'; o.frequency.value=freq; const t=this.ctx.currentTime+start;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak||0.4,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(target||this.sfx); o.start(t); o.stop(t+dur+0.05); },
+  correct(){ if(this.mode>=2) return; this.resume(); this.tone(880,0,0.13,'sine',0.5); this.tone(1318.51,0.08,0.2,'sine',0.45); },
+  wrong(){ if(this.mode>=2) return; this.resume(); this.tone(311.13,0,0.18,'triangle',0.4); this.tone(233.08,0.13,0.3,'triangle',0.4); },
+  win(){ if(this.mode>=2) return; this.resume(); [523.25,659.25,783.99,1046.50].forEach((f,i)=>this.tone(f,i*0.1,0.28,'sine',0.45)); },
+  onUnit(k){ this._unit=k; if(this.mode===0 && this.ctx) this.startMusic(k); },
+  startMusic(k){ if(this.mode!==0) return; this.resume(); if(!this.ctx) return; this.stopMusic();
+    const p=this.PRESETS[k]||this.PRESETS.geometry; this._step=0;
+    const play=()=>{ if(this.mode!==0) return; const sc=p.scale; const deg=sc[Math.floor(Math.random()*sc.length)];
+      const oct=(Math.random()<0.28)?2:1; const freq=p.root*Math.pow(2,deg/12)*oct;
+      this.tone(freq,0,1.7,p.wave,0.5,this.mus);
+      if(this._step%4===0) this.tone(p.root/2,0,2.4,'sine',0.55,this.mus);
+      this._step++; };
+    play(); this._timer=setInterval(play,p.beat); },
+  stopMusic(){ if(this._timer){ clearInterval(this._timer); this._timer=null; } },
+  setMode(m){ this.mode=m; lsSet('gq_audio',m); if(m===0){ this.startMusic(this._unit||S.unit); } else { this.stopMusic(); } this.updateBtn(); },
+  cycle(){ this.resume(); this.setMode((this.mode+1)%3); },
+  updateBtn(){ const b=document.getElementById('soundBtn'); if(!b) return; const L=['🔊 Âm thanh + nhạc','🔈 Chỉ hiệu ứng','🔇 Tắt tiếng']; b.textContent=L[this.mode]; },
+  mountBtn(){ if(document.getElementById('soundBtn')) return; const b=document.createElement('button'); b.id='soundBtn';
+    b.style.cssText='position:fixed;right:16px;bottom:16px;z-index:60;font-family:inherit;font-weight:800;font-size:13.5px;border:none;border-radius:999px;padding:10px 16px;cursor:pointer;background:#2f7fd1;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+    b.onclick=()=>AUD.cycle(); document.body.appendChild(b); this.updateBtn(); }
+};
+function kickAudio(){ AUD.resume(); if(AUD.mode===0 && S.unit) AUD.startMusic(S.unit); document.removeEventListener('pointerdown',kickAudio); }
+document.addEventListener('pointerdown',kickAudio);
 
 /* ================= INIT ================= */
 Cloud.init();
+AUD.mountBtn();
 renderUnitGrid();
 (function init(){
   const st = loadStudent();
